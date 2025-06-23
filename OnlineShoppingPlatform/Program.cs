@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using OnlineShoppingPlatform;
 using OnlineShoppingPlatform.Data;
@@ -19,7 +18,6 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
-
 app.UseAuthorization();
 
 app.UseStaticFiles();
@@ -31,11 +29,11 @@ app.MapControllers();
 app.UseSpa(spa =>
 {
     spa.Options.SourcePath = "ShoppingWeb";
-    if (app.Environment.IsDevelopment())
-    {
-        // If dev, proxy to Angular CLI if desired
-        spa.UseAngularCliServer(npmScript: "start");
-    }
+    //if (app.Environment.IsDevelopment())
+    //{
+    //    // If dev, proxy to Angular CLI if desired
+    //    spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
+    //}
 });
 
 app.Run();

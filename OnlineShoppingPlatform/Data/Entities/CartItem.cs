@@ -1,6 +1,7 @@
 ﻿using OnlineShoppingPlatform.Data.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace OnlineShoppingPlatform.Data.Entities
 {
@@ -21,7 +22,9 @@ namespace OnlineShoppingPlatform.Data.Entities
         public int Quantity { get; set; }
 
         // Navigation properties
+        [JsonIgnore]
         public Cart Cart { get; set; }
+        [JsonIgnore]
         public Product Product { get; set; }
     }
 }

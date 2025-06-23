@@ -8,7 +8,7 @@ import { Cart, CartItem } from '../models/cart';
     providedIn: 'root'
 })
 export class CartService {
-    private baseUrl = `${environment.apiUrl} /cart `;
+    private baseUrl = `${environment.apiUrl}/api/cart`;
 
     constructor(private http: HttpClient) { }
 
@@ -17,7 +17,7 @@ export class CartService {
     }
 
     getById(cartId: number): Observable<Cart> {
-        return this.http.get<Cart>(`${this.baseUrl} / ${cartId} `);
+        return this.http.get<Cart>(`${this.baseUrl}/${cartId}`);
     }
 
     create(cart: Partial<Cart>): Observable<Cart> {
