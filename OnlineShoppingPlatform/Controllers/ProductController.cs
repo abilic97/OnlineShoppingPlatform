@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Data.Entities;
 using OnlineShoppingPlatform.Services.Interfaces;
 
@@ -15,6 +16,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
             var products = await _productService.GetAllAsync();
@@ -22,6 +24,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _productService.GetByIdAsync(id);
@@ -31,6 +34,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
             var newProduct = await _productService.CreateAsync(product);
@@ -38,6 +42,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int id, Product product)
         {
             if (id != product.ProductId) return BadRequest("Mismatched Product ID");
@@ -49,6 +54,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var success = await _productService.DeleteAsync(id);

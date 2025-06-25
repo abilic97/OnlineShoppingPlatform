@@ -19,10 +19,8 @@ namespace OnlineShoppingPlatform.Data.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        // Tracks how many items are in stock
         public int StockQuantity { get; set; }
 
-        // Boolean to easily mark if the product is in stock
         public bool IsInStock { get; set; }
     }
 }

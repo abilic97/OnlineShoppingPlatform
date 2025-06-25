@@ -13,10 +13,7 @@ namespace OnlineShoppingPlatform.Data.Entities
         public string Username { get; set; }
         public string OAuthProvider { get; set; }
         public string OAuthId { get; set; }
-        // Foreign key to UserRole
         public int UserRoleId { get; set; }
-
-        // Navigation property
         public UserRole UserRole { get; set; }
     }
 }

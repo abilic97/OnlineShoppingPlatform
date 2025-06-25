@@ -12,7 +12,6 @@ namespace OnlineShoppingPlatform.Data.Entities
         [StringLength(50)]
         public required string RoleName { get; set; }
 
-        // Navigation property to Users
         public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

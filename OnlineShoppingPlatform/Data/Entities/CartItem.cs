@@ -10,18 +10,15 @@ namespace OnlineShoppingPlatform.Data.Entities
         [Key]
         public int CartItemId { get; set; }
 
-        // Foreign key to Cart
         [ForeignKey(nameof(Cart))]
         public int CartId { get; set; }
 
-        // Foreign key to Product
         [ForeignKey(nameof(Product))]
         public int ProductId { get; set; }
 
         [Range(1, 9999)]
         public int Quantity { get; set; }
 
-        // Navigation properties
         [JsonIgnore]
         public Cart Cart { get; set; }
         [JsonIgnore]

@@ -22,7 +22,7 @@ namespace OnlineShoppingPlatform.Repositories
                 .FirstOrDefaultAsync(c => c.CartId == cartId);
 
             if (cartEntity == null)
-                return null!; // or handle not found case as you prefer
+                return null!;
 
             // Map entity to DTO before returning
             var cartDto = cartEntity.ToDto();
