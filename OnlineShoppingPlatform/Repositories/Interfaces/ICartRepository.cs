@@ -1,14 +1,14 @@
 ﻿using OnlineShoppingPlatform.Data.Entities;
+using OnlineShoppingPlatform.Domain.DTO;
 
 namespace OnlineShoppingPlatform.Repositories.Interfaces
 {
     public interface ICartRepository
     {
-        Task<Cart> GetByIdAsync(int cartId);
-        Task<IEnumerable<Cart>> GetAllAsync();
-        Task AddAsync(Cart cart);
-        void Update(Cart cart);
-        void Delete(Cart cart);
+        Task<CartDto> GetByIdAsync(int cartId);
+        Task AddAsync(CartDto cart);
+        void Update(CartDto cart);
+        void Delete(CartDto cart);
         Task<bool> SaveChangesAsync();
     }
 }

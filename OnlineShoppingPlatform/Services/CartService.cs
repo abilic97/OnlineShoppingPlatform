@@ -1,4 +1,5 @@
 ﻿using OnlineShoppingPlatform.Data.Entities;
+using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Repositories.Interfaces;
 using OnlineShoppingPlatform.Services.Interfaces;
 
@@ -11,24 +12,20 @@ namespace OnlineShoppingPlatform.Services
         {
             _cartRepository = cartRepository;
         }
-        public async Task<IEnumerable<Cart>> GetAllAsync()
-        {
-            return await _cartRepository.GetAllAsync();
-        }
 
-        public async Task<Cart> GetByIdAsync(int cartId)
+        public async Task<CartDto> GetByIdAsync(int cartId)
         {
             return await _cartRepository.GetByIdAsync(cartId);
         }
 
-        public async Task<Cart> CreateAsync(Cart cart)
+        public async Task<CartDto> CreateAsync(CartDto cart)
         {
             await _cartRepository.AddAsync(cart);
             await _cartRepository.SaveChangesAsync();
             return cart;
         }
 
-        public async Task<Cart> UpdateStatusAsync(int cartId, string newStatus)
+        public async Task<CartDto> UpdateStatusAsync(int cartId, string newStatus)
         {
             var cart = await _cartRepository.GetByIdAsync(cartId);
             if (cart == null) return null;
@@ -49,30 +46,30 @@ namespace OnlineShoppingPlatform.Services
         }
 
         // Example: Recalculate totals (simple version)
-        public async Task<Cart> RecalculateTotalsAsync(int cartId)
+        public async Task<CartDto> RecalculateTotalsAsync(int cartId)
         {
             var cart = await _cartRepository.GetByIdAsync(cartId);
             if (cart == null) return null;
 
             decimal subtotal = 0;
-            if (cart.Items != null)
-            {
-                foreach (var item in cart.Items)
-                {
-                    if (item?.Product != null)
-                    {
-                        subtotal += item.Quantity * item.Product.Price;
-                    }
-                }
-            }
+            //if (cart.Items != null)
+            //{
+            //    foreach (var item in cart.Items)
+            //    {
+            //        if (item?.Product != null)
+            //        {
+            //            subtotal += item.Quantity * item.Product.Price;
+            //        }
+            //    }
+            //}
 
-            cart.Subtotal = subtotal;
+            //cart.Subtotal = subtotal;
             // Suppose shipping cost is fixed or based on logic
             // cart.ShippingCost = ...
-            cart.Total = cart.Subtotal + cart.ShippingCost;
+            //cart.Total = cart.Subtotal + cart.ShippingCost;
 
-            _cartRepository.Update(cart);
-            await _cartRepository.SaveChangesAsync();
+            //_cartRepository.Update(cart);
+            //await _cartRepository.SaveChangesAsync();
             return cart;
         }
     }

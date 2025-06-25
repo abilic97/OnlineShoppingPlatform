@@ -19,6 +19,7 @@ namespace OnlineShoppingPlatform
         {
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICartService, CartService>();
+            services.AddScoped<IUserService, UserService>();
 
             return services;
         }

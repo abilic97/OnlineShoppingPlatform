@@ -1,13 +1,25 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { UserService } from '../services/users.service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html'
 })
 export class NavbarComponent {
-  loggedIn = false;  // toggle this for demo, replace with real auth logic
+
+  constructor(private userService: UserService, private router: Router) { }
+
+  get loggedIn(): boolean {
+    return !!this.userService.getToken();
+  }
 
   toggleLogin() {
-    this.loggedIn = !this.loggedIn;
+    if (this.loggedIn) {
+      this.userService.removeToken();
+      this.router.navigate(['/login']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Data.Entities;
+using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Services.Interfaces;
 
 namespace OnlineShoppingPlatform.Controllers
@@ -24,7 +25,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Cart>> CreateCart(Cart newCart)
+        public async Task<ActionResult<Cart>> CreateCart(CartDto newCart)
         {
             var cart = await _cartService.CreateAsync(newCart);
             return CreatedAtAction(nameof(GetCart), new { id = cart.CartId }, cart);

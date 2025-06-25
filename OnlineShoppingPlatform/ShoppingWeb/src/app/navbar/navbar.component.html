@@ -16,8 +16,8 @@
                 <i class="bi bi-person-circle" style="font-size: 1.7rem;"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                <li *ngIf="!loggedIn"><a class="dropdown-item" href="#" (click)="toggleLogin()">Login</a></li>
-                <li *ngIf="loggedIn"><a class="dropdown-item" href="#" (click)="toggleLogin()">Logout</a></li>
+                <li *ngIf="!loggedIn"><a class="dropdown-item" (click)="toggleLogin()">Login</a></li>
+                <li *ngIf="loggedIn"><a class="dropdown-item" (click)="toggleLogin()">Logout</a></li>
             </ul>
         </div>
     </div>

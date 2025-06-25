@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShoppingPlatform.Data;
-using OnlineShoppingPlatform.Data.Entities;
+using OnlineShoppingPlatform.Domain.DTO;
+using OnlineShoppingPlatform.Domain.EntityMappers;
 using OnlineShoppingPlatform.Repositories.Interfaces;
 
 namespace OnlineShoppingPlatform.Repositories
@@ -13,35 +14,37 @@ namespace OnlineShoppingPlatform.Repositories
             _context = context;
         }
 
-        public async Task<Cart> GetByIdAsync(int cartId)
+        public async Task<CartDto> GetByIdAsync(int cartId)
         {
-            return await _context.Carts
+            var cartEntity = await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(c => c.CartId == cartId);
+
+            if (cartEntity == null)
+                return null!; // or handle not found case as you prefer
+
+            // Map entity to DTO before returning
+            var cartDto = cartEntity.ToDto();
+            return cartDto;
         }
 
-        public async Task<IEnumerable<Cart>> GetAllAsync()
+        public async Task AddAsync(CartDto cart)
         {
-            return await _context.Carts
-                .Include(c => c.Items)
-                .ThenInclude(i => i.Product)
-                .ToListAsync();
+            var cartTb = cart.ToEntity();
+            await _context.Carts.AddAsync(cartTb);
         }
 
-        public async Task AddAsync(Cart cart)
+        public void Update(CartDto cart)
         {
-            await _context.Carts.AddAsync(cart);
+            var cartTb = cart.ToEntity();
+            _context.Carts.Update(cartTb);
         }
 
-        public void Update(Cart cart)
+        public void Delete(CartDto cart)
         {
-            _context.Carts.Update(cart);
-        }
-
-        public void Delete(Cart cart)
-        {
-            _context.Carts.Remove(cart);
+            var cartTb = cart.ToEntity();
+            _context.Carts.Remove(cartTb);
         }
 
         public async Task<bool> SaveChangesAsync()

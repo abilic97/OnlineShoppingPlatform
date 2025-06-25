@@ -8,6 +8,8 @@ namespace OnlineShoppingPlatform.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public ShoppingDbContext(DbContextOptions<ShoppingDbContext> options) :
             base(options)
         {
@@ -27,6 +29,11 @@ namespace OnlineShoppingPlatform.Data
                 .WithMany() // If Product doesn't have a CartItems collection
                 .HasForeignKey(item => item.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.UserRole)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.UserRoleId);
         }
     }
 }

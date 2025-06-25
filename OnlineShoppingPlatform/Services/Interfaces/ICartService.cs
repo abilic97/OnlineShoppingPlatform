@@ -1,14 +1,14 @@
 ﻿using OnlineShoppingPlatform.Data.Entities;
+using OnlineShoppingPlatform.Domain.DTO;
 
 namespace OnlineShoppingPlatform.Services.Interfaces
 {
     public interface ICartService
     {
-        Task<IEnumerable<Cart>> GetAllAsync();
-        Task<Cart> GetByIdAsync(int cartId);
-        Task<Cart> CreateAsync(Cart cart);
-        Task<Cart> UpdateStatusAsync(int cartId, string newStatus);
+        Task<CartDto> GetByIdAsync(int cartId);
+        Task<CartDto> CreateAsync(CartDto cart);
+        Task<CartDto> UpdateStatusAsync(int cartId, string newStatus);
         Task<bool> DeleteAsync(int cartId);
-        Task<Cart> RecalculateTotalsAsync(int cartId);
+        Task<CartDto> RecalculateTotalsAsync(int cartId);
     }
 }
