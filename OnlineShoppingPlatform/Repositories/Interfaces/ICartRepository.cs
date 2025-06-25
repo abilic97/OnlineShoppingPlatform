@@ -10,5 +10,7 @@ namespace OnlineShoppingPlatform.Repositories.Interfaces
         void Update(CartDto cart);
         void Delete(CartDto cart);
         Task<bool> SaveChangesAsync();
+        Task<CartDto> GetByUserIdAsync(string userId);
+        Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem);
     }
 }

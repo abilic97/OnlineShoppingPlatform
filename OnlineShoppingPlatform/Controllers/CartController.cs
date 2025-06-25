@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Data.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Services.Interfaces;
+using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
@@ -16,16 +18,33 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> GetCart(int id)
+        public async Task<ActionResult<CartDto>> GetCart(int id)
         {
             var cart = await _cartService.GetByIdAsync(id);
             if (cart == null) return NotFound();
+            return Ok(cart);
+        }
 
+        [HttpGet("user")]
+        public async Task<ActionResult<CartDto>> GetUserCart()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            var cart = await _cartService.GetByUserIdAsync(userId);
+            if (cart == null)
+            {
+                cart = await _cartService.CreateAsync(new CartDto
+                {
+                    UserId = userId,
+                    CartNumber = Guid.NewGuid().ToString()
+                });
+            }
             return Ok(cart);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Cart>> CreateCart(CartDto newCart)
+        public async Task<ActionResult<CartDto>> CreateCart(CartDto newCart)
         {
             var cart = await _cartService.CreateAsync(newCart);
             return CreatedAtAction(nameof(GetCart), new { id = cart.CartId }, cart);
@@ -36,7 +55,6 @@ namespace OnlineShoppingPlatform.Controllers
         {
             var cart = await _cartService.UpdateStatusAsync(id, newStatus);
             if (cart == null) return NotFound();
-
             return NoContent();
         }
 
@@ -45,17 +63,23 @@ namespace OnlineShoppingPlatform.Controllers
         {
             var success = await _cartService.DeleteAsync(id);
             if (!success) return NotFound();
-
             return NoContent();
         }
 
-        // Example endpoint to recalc totals
+        [Authorize]
         [HttpPost("{id}/recalculate")]
-        public async Task<ActionResult<Cart>> RecalculateTotals(int id)
+        public async Task<ActionResult<CartDto>> RecalculateTotals(int id)
         {
             var cart = await _cartService.RecalculateTotalsAsync(id);
             if (cart == null) return NotFound();
+            return Ok(cart);
+        }
 
+        [HttpPost("{id}/items")]
+        public async Task<ActionResult<CartDto>> AddItemToCart(int id, [FromBody] CartItemDto newItem)
+        {
+            var cart = await _cartService.AddItemAsync(id, newItem);
+            if (cart == null) return NotFound();
             return Ok(cart);
         }
     }

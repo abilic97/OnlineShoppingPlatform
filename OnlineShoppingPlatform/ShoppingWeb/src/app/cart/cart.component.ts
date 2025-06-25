@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Cart, CartItem } from '../models/cart';
-import { CartService } from '../services/cart.service';
+import { CartItemLocal, CartService } from '../services/cart.service';
+import { UserService } from '../services/users.service';
 
 @Component({
   selector: 'app-cart',
@@ -10,19 +11,32 @@ export class CartComponent implements OnInit {
   cart: Cart | null = null;
   cartId = 1; // Static for demo — replace with dynamic logic if needed
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private userService: UserService) {}
 
   ngOnInit(): void {
     this.loadCart();
   }
 
-  loadCart(): void {
-    this.cartService.getById(1).subscribe({
-      next: (data) => {
-        this.cart = data;
-      },
-      error: (err) => console.error('Error loading cart', err)
-    });
+ loadCart(): void {
+    if (this.userService.isLoggedIn()) {
+      this.cartService.getServerCart().subscribe({
+        next: (serverCart) => {
+          this.cart = serverCart;
+
+          // Merge any local cart (optional)
+          const local = this.cartService.getLocalCart();
+          if (local?.items?.length) {
+            for (const item of local.items) {
+              this.cartService.addItem(serverCart.cartId, item).subscribe();
+            }
+            this.cartService.clearLocalCart();
+          }
+        },
+        error: (err) => console.error('Failed to load server cart', err)
+      });
+    } else {
+      this.cart = this.cartService.getLocalCart();
+    }
   }
 
   recalc(): void {
@@ -35,12 +49,17 @@ export class CartComponent implements OnInit {
     });
   }
 
-  addItem(productId: number): void {
-    const newItem: Partial<CartItem> = { productId, quantity: 1 };
-    this.cartService.addItem(this.cartId, newItem).subscribe({
-      next: (updatedCart) => this.cart = updatedCart,
-      error: (err) => console.error('Error adding item', err)
-    });
+addItem(productId: number): void {
+    const newItem: Partial<CartItemLocal> = { productId, quantity: 1 };
+
+    if (this.userService.isLoggedIn() && this.cart) {
+      this.cartService.addItem(this.cart.cartId, newItem).subscribe({
+        next: (updatedCart) => this.cart = updatedCart,
+        error: (err) => console.error('Error adding item to server cart', err)
+      });
+    } else {
+      this.cart = this.cartService.addItemToLocalCart(newItem);
+    }
   }
 
   clearCart(): void {
@@ -51,7 +70,7 @@ export class CartComponent implements OnInit {
   }
 
   getTotal(): number {
-    return this.cart?.items?.reduce((sum, item) => sum + item.quantity * item.product.price, 0) || 0;
+    return 100;
   }
 
   removeItem(itemId: number): void {

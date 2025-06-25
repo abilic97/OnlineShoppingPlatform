@@ -25,4 +25,25 @@ export class UserService {
   removeToken() {
     localStorage.removeItem('auth_token');
   }
+  
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+
+    const payload = this.parseJwt(token);
+    if (!payload) return false;
+
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp && payload.exp > now;
+  }
+
+  private parseJwt(token: string): any | null {
+    try {
+      const base64Payload = token.split('.')[1];
+      const payloadJson = atob(base64Payload);
+      return JSON.parse(payloadJson);
+    } catch {
+      return null;
+    }
+  }
 }

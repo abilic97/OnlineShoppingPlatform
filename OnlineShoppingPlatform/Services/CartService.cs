@@ -1,5 +1,4 @@
-﻿using OnlineShoppingPlatform.Data.Entities;
-using OnlineShoppingPlatform.Domain.DTO;
+﻿using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Repositories.Interfaces;
 using OnlineShoppingPlatform.Services.Interfaces;
 
@@ -72,5 +71,16 @@ namespace OnlineShoppingPlatform.Services
             //await _cartRepository.SaveChangesAsync();
             return cart;
         }
+
+        public async Task<CartDto> GetByUserIdAsync(string userId)
+        {
+            return await _cartRepository.GetByUserIdAsync(userId);
+        }
+
+        public async Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem)
+        {
+            return await _cartRepository.AddItemAsync(cartId, newItem);
+        }
+
     }
 }

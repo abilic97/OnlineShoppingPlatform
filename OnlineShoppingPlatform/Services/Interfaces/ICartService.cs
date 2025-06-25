@@ -10,5 +10,7 @@ namespace OnlineShoppingPlatform.Services.Interfaces
         Task<CartDto> UpdateStatusAsync(int cartId, string newStatus);
         Task<bool> DeleteAsync(int cartId);
         Task<CartDto> RecalculateTotalsAsync(int cartId);
+        Task<CartDto> GetByUserIdAsync(string userId);
+        Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem);
     }
 }

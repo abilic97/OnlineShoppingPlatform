@@ -3,6 +3,8 @@ import { ProductService } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { Product } from '../models/product';
 import { Cart, CartItem } from '../models/cart'
+import { UserService } from '../services/users.service';
+
 @Component({
     selector: 'app-product-list',
     templateUrl: './product-list.component.html'
@@ -13,7 +15,8 @@ export class ProductListComponent implements OnInit {
 
     constructor(
         private productService: ProductService,
-        private cartService: CartService
+        private cartService: CartService,
+        private userService: UserService
     ) { }
 
     ngOnInit(): void {
@@ -31,54 +34,26 @@ export class ProductListComponent implements OnInit {
         });
     }
 
-    // addToCart(product: Product): void {
-    //     const cartItem: Partial<CartItem> = {
-    //         productId: product.productId,
-    //         quantity: 1,
-    //         product: product
-    //     };
-
-    //     this.cartService.addItem(this.cartId, cartItem).subscribe({
-    //         next: () => alert(`${product.name} added to cart!`),
-    //         error: () => alert(`Could not add ${product.name} to cart.`)
-    //     });
-    // }
-
     addToCart(product: Product): void {
-        const cartItem: CartItem = {
+        const cartItem = {
             productId: product.productId,
             quantity: 1,
-            cartId: 0,
-            cartItemId: 0,
-            product: product
+            product
         };
 
-        if (this.cartId) {
-            // Existing cart — add item
-            this.cartService.addItem(this.cartId, cartItem).subscribe({
-                next: () => alert(`${product.name} added to cart!`),
-                error: (err) => {
-                    console.error('Error adding to cart', err);
-                    alert(`Failed to add ${product.name} to cart.`);
+        if (this.userService.isLoggedIn()) {
+            const cartId = +localStorage.getItem('server_cart_id')!;
+            this.cartService.addItem(cartId, cartItem).subscribe({
+                next: updatedCart => {
+                    console.log('Item added to server cart', updatedCart);
+                },
+                error: err => {
+                    console.error('Failed to add to server cart', err);
                 }
             });
         } else {
-            // No cart yet — create it first, then add item
-            const newCart: Partial<Cart> = {
-                items: [cartItem],
-                total: product.price
-            };
-
-            this.cartService.create(newCart).subscribe({
-                next: (createdCart) => {
-                    this.cartId = createdCart.cartId;
-                    alert(`${product.name} added to a new cart!`);
-                },
-                error: (err) => {
-                    console.error('Error creating cart', err);
-                    alert('Failed to create cart.');
-                }
-            });
+            const updatedCart = this.cartService.addItemToLocalCart(cartItem);
+            console.log('Item added to local cart', updatedCart);
         }
     }
 }
