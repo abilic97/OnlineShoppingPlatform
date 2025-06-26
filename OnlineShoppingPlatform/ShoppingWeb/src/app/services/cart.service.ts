@@ -62,6 +62,7 @@ export class CartService {
             cartId: cartId,
             productId: item.productId,
             quantity: item.quantity,
+            productName: item.product?.name
         }
         return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest).pipe(
             tap(cart => this.updateCartItemCount(cart))
@@ -93,7 +94,9 @@ export class CartService {
             cart.items.push({
                 cartItemId: Math.random(),
                 productId: item.productId!,
+                productName: item.product?.name ?? "",
                 quantity: item.quantity || 1,
+                price: item.product?.price ?? 0,
                 product: item.product!
             });
         }

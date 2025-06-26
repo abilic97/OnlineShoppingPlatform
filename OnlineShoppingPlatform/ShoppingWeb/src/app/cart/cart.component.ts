@@ -43,16 +43,6 @@ export class CartComponent implements OnInit {
     }
   }
 
-  recalc(): void {
-    // if (!this.cart) return;
-    // this.cartService.recalcTotals(this.cartId).subscribe({
-    //   next: (updatedCart) => {
-    //     this.cart = updatedCart;
-    //   },
-    //   error: (err) => console.error('Error recalculating', err)
-    // });
-  }
-
   addItem(productId: number): void {
     const newItem: Partial<CartItemLocal> = { productId, quantity: 1 };
 
@@ -85,7 +75,7 @@ export class CartComponent implements OnInit {
   }
 
   getTotal(): number {
-    return 100;
+    return this.cart?.total ?? 0;
   }
 
   removeItem(itemId: number): void {

@@ -52,6 +52,8 @@ namespace OnlineShoppingPlatform.Domain.EntityMappers
                 CartId = entity.CartId,
                 ProductId = entity.ProductId,
                 Quantity = entity.Quantity,
+                ProductName = entity.Product.Name,
+                Price = entity.Product.Price
             };
         }
 
