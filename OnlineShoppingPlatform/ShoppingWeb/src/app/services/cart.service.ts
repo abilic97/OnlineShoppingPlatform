@@ -69,13 +69,7 @@ export class CartService {
     }
 
     removeItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
-        let cartItemRequest = {
-            cartItemId: item.cartItemId,
-            cartId: cartId,
-            productId: item.productId,
-            quantity: item.quantity,
-        }
-        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/remove`, cartItemRequest).pipe(
+        return this.http.delete<Cart>(`${this.baseUrl}/${cartId}/items/${item.cartItemId}`).pipe(
             tap(cart => this.updateCartItemCount(cart))
         );
     }

@@ -4,8 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using OnlineShoppingPlatform;
 using OnlineShoppingPlatform.Data;
 using OnlineShoppingPlatform.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -26,7 +34,7 @@ builder.Services.AddSpaStaticFiles(configuration =>
     configuration.RootPath = "ShoppingWeb/dist/shopping-web";
 });
 builder.Services.AddDbContext<ShoppingDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("Shopping")));
+options.UseSqlServer(builder.Configuration.GetConnectionString("Shopping")).EnableSensitiveDataLogging());
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

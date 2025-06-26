@@ -110,7 +110,6 @@ export class CartComponent implements OnInit {
   }
 
   clearLocalCart(): void {
-    console.log
     localStorage.removeItem(this.cartService.localStorageKey);
     this.cart = this.cartService.createEmptyCart();
   }

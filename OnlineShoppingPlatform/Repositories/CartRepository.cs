@@ -103,7 +103,12 @@ namespace OnlineShoppingPlatform.Repositories
 
             try
             {
-                var cartTb = cart.ToEntity();
+                var cartTb = _context.Carts.FirstOrDefault(x => x.CartId == cart.CartId);
+                if (cartTb == null)
+                {
+                    _logger.LogWarning("Wrong ID provided for deletion");
+                    throw new ArgumentOutOfRangeException(cart.CartId.ToString());
+                }
                 _context.Carts.Remove(cartTb);
             }
             catch (Exception ex)
@@ -136,6 +141,7 @@ namespace OnlineShoppingPlatform.Repositories
             try
             {
                 var cartEntity = await _context.Carts
+                    .AsNoTracking()
                     .Include(c => c.Items)
                     .ThenInclude(i => i.Product)
                     .FirstOrDefaultAsync(c => c.UserId == userId);
