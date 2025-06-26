@@ -66,7 +66,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Update status failed. Cart {CartId} not found.", cartId);
-                    return default(CartDto);
+                    return null;
                 }
 
                 cart.Status = newStatus;

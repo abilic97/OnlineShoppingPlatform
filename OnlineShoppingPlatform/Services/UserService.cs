@@ -13,6 +13,13 @@ namespace OnlineShoppingPlatform.Services
     {
         private readonly ShoppingDbContext _context;
         private readonly IConfiguration _configuration;
+
+        //It would be best to have a mapping table in DB were we have RoleID -> RoleName
+        //We would automatically assing all roles as Customers since that's what shopping platform is 
+        //usually used for. For admins, who could manually add/delete products, it is best to have seperate
+        // registration page, or they should be added manually through DB.
+        private const string UserRoleName = "Customer";
+
         public UserService(ShoppingDbContext shoppingDbContext, IConfiguration configuration)
         {
             _context = shoppingDbContext;
@@ -28,17 +35,13 @@ namespace OnlineShoppingPlatform.Services
             if (user == null)
             {
                 var customerRole = await _context.UserRoles
-                    .FirstOrDefaultAsync(r => r.RoleName == "Customer");
+                    .FirstOrDefaultAsync(r => r.RoleName == UserRoleName);
 
                 if (customerRole == null)
                 {
                     customerRole = new UserRole
                     {
-                        RoleName = "Customer",
-                        CreatedBy = "System",
-                        UpdatedBy = "System",
-                        CreatedOn = DateTime.UtcNow,
-                        UpdatedOn = DateTime.UtcNow
+                        RoleName = UserRoleName,
                     };
                     _context.UserRoles.Add(customerRole);
                     await _context.SaveChangesAsync();
@@ -50,10 +53,6 @@ namespace OnlineShoppingPlatform.Services
                     OAuthId = externalUserId,
                     OAuthProvider = provider,
                     UserRole = customerRole,
-                    CreatedBy = "System",
-                    UpdatedBy = "System",
-                    CreatedOn = DateTime.UtcNow,
-                    UpdatedOn = DateTime.UtcNow
                 };
 
                 _context.Users.Add(user);

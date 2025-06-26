@@ -7,52 +7,125 @@ namespace OnlineShoppingPlatform.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
-        public ProductService(IProductRepository productRepository)
+        private readonly ILogger<ProductService> _logger;
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
         {
             _productRepository = productRepository;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            return await _productRepository.GetAllAsync();
+            try
+            {
+                return await _productRepository.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting all products.");
+                throw;
+            }
         }
 
         public async Task<Product> GetByIdAsync(int productId)
         {
-            return await _productRepository.GetByIdAsync(productId);
+            if (productId <= default(int))
+            {
+                _logger.LogWarning("Invalid product ID provided: {ProductId}", productId);
+                return null!;
+            }
+
+            try
+            {
+                return await _productRepository.GetByIdAsync(productId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching product with ID: {ProductId}", productId);
+                throw;
+            }
         }
 
         public async Task<Product> CreateAsync(Product product)
         {
-            await _productRepository.AddAsync(product);
-            await _productRepository.SaveChangesAsync();
-            return product;
+            if (product == null)
+            {
+                _logger.LogWarning("Null product provided for creation.");
+                throw new ArgumentNullException(nameof(product));
+            }
+
+            try
+            {
+                await _productRepository.AddAsync(product);
+                await _productRepository.SaveChangesAsync();
+                return product;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while creating a product.");
+                throw;
+            }
         }
 
         public async Task<Product> UpdateAsync(int productId, Product updatedProduct)
         {
-            var existing = await _productRepository.GetByIdAsync(productId);
-            if (existing == null) return null;
+            if (updatedProduct == null)
+            {
+                _logger.LogWarning("Null product provided for update.");
+                throw new ArgumentNullException(nameof(updatedProduct));
+            }
 
-            // Map the changes (or use an external mapper like AutoMapper)
-            existing.Name = updatedProduct.Name;
-            existing.Description = updatedProduct.Description;
-            existing.Price = updatedProduct.Price;
-            existing.StockQuantity = updatedProduct.StockQuantity;
-            existing.IsInStock = updatedProduct.IsInStock;
+            try
+            {
+                var existing = await _productRepository.GetByIdAsync(productId);
+                if (existing == null)
+                {
+                    _logger.LogInformation("Product not found with ID: {ProductId}", productId);
+                    return null;
+                }
 
-            _productRepository.Update(existing);
-            await _productRepository.SaveChangesAsync();
-            return existing;
+                existing.Name = updatedProduct.Name;
+                existing.Description = updatedProduct.Description;
+                existing.Price = updatedProduct.Price;
+                existing.StockQuantity = updatedProduct.StockQuantity;
+                existing.IsInStock = updatedProduct.IsInStock;
+
+                _productRepository.Update(existing);
+                await _productRepository.SaveChangesAsync();
+                return existing;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating product with ID: {ProductId}", productId);
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAsync(int productId)
         {
-            var product = await _productRepository.GetByIdAsync(productId);
-            if (product == null) return false;
+            if (productId <= 0)
+            {
+                _logger.LogWarning("Invalid product ID provided for deletion: {ProductId}", productId);
+                return false;
+            }
 
-            _productRepository.Delete(product);
-            return await _productRepository.SaveChangesAsync();
+            try
+            {
+                var product = await _productRepository.GetByIdAsync(productId);
+                if (product == null)
+                {
+                    _logger.LogInformation("Product not found for deletion with ID: {ProductId}", productId);
+                    return false;
+                }
+
+                _productRepository.Delete(product);
+                return await _productRepository.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting product with ID: {ProductId}", productId);
+                throw;
+            }
         }
     }
 }
