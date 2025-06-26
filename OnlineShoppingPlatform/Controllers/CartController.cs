@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
@@ -17,18 +18,10 @@ namespace OnlineShoppingPlatform.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CartDto>> GetCart(int id)
-        {
-            var cart = await _cartService.GetByIdAsync(id);
-            if (cart == null) return NotFound();
-            return Ok(cart);
-        }
-
         [HttpGet("user")]
         public async Task<ActionResult<CartDto>> GetUserCart()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
             var cart = await _cartService.GetByUserIdAsync(userId);
@@ -37,21 +30,26 @@ namespace OnlineShoppingPlatform.Controllers
                 cart = await _cartService.CreateAsync(new CartDto
                 {
                     UserId = userId,
-                    CartNumber = Guid.NewGuid().ToString()
+                    CartNumber = Guid.NewGuid().ToString(),
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(30)
                 });
             }
             return Ok(cart);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<CartDto>> CreateCart(CartDto newCart)
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetUserCartNumberOfItems()
         {
-            var cart = await _cartService.CreateAsync(newCart);
-            return CreatedAtAction(nameof(GetCart), new { id = cart.CartId }, cart);
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+            var cart = await _cartService.GetByUserIdAsync(userId);
+            var totalItems = cart?.Items.Count() ?? 0;
+
+            return Ok(totalItems);
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateCartStatus(int id, [FromBody] string newStatus)
+        public async Task<IActionResult> UpdateCartStatus(int id, [FromBody][Required] string newStatus)
         {
             var cart = await _cartService.UpdateStatusAsync(id, newStatus);
             if (cart == null) return NotFound();
@@ -66,7 +64,6 @@ namespace OnlineShoppingPlatform.Controllers
             return NoContent();
         }
 
-        [Authorize]
         [HttpPost("{id}/recalculate")]
         public async Task<ActionResult<CartDto>> RecalculateTotals(int id)
         {
@@ -76,11 +73,21 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPost("{id}/items")]
-        public async Task<ActionResult<CartDto>> AddItemToCart(int id, [FromBody] CartItemDto newItem)
+        public async Task<ActionResult<CartDto>> AddItemToCart(int id, [FromBody][Required] CartItemDto newItem)
         {
             var cart = await _cartService.AddItemAsync(id, newItem);
             if (cart == null) return NotFound();
             return Ok(cart);
         }
+
+        [HttpDelete("{id}/items/{cartItemId}")]
+        public async Task<ActionResult<CartDto>> RemoveItemFromCart(int id, int cartItemId)
+        {
+            var cart = await _cartService.RemoveItemAsync(id, cartItemId);
+            if (cart == null) return NotFound();
+            return Ok(cart);
+        }
+
+        private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 }

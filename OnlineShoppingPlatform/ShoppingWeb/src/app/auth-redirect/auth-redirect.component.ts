@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../services/users.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
     selector: 'app-auth-callback',
@@ -11,7 +12,8 @@ export class AuthCallbackComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private userService: UserService
+        private userService: UserService,
+        private cartService: CartService
     ) { }
 
     ngOnInit() {
@@ -19,6 +21,7 @@ export class AuthCallbackComponent implements OnInit {
             const token = params['token'];
             if (token) {
                 this.userService.storeToken(token);
+                this.cartService.getServerCart();
                 this.router.navigate(['/products']);
             } else {
                 this.router.navigate(['/login']);

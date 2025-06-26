@@ -10,104 +10,249 @@ namespace OnlineShoppingPlatform.Repositories
     public class CartRepository : ICartRepository
     {
         private readonly ShoppingDbContext _context;
-        public CartRepository(ShoppingDbContext context)
+        private readonly ILogger<CartRepository> _logger;
+        //TODO: placeholder for now. Shipping cost needs to be defined in coordinance
+        //with shipping services (if external services were to be used) or defined within
+        //the company itself if it also provides shipping services along with selling of goods
+        //After that we can have predefined DB value based on the shipping company and/or shipping address
+        private const decimal ShippingCost = 25.00m;
+        public CartRepository(ShoppingDbContext context, ILogger<CartRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<CartDto> GetByIdAsync(int cartId)
         {
-            var cartEntity = await _context.Carts
-                .Include(c => c.Items)
-                .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(c => c.CartId == cartId);
+            try
+            {
+                if (cartId <= 0)
+                {
+                    _logger.LogWarning("Invalid cart ID provided: {CartId}", cartId);
+                    return null!;
+                }
 
-            if (cartEntity == null)
-                return null!;
+                var cartEntity = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(i => i.Product)
+                    .FirstOrDefaultAsync(c => c.CartId == cartId);
 
-            var cartDto = cartEntity.ToDto();
-            return cartDto;
+                if (cartEntity == null)
+                {
+                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
+                    return null!;
+                }
+
+                var cartDto = cartEntity.ToDto();
+                return cartDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching cart with ID: {CartId}", cartId);
+                throw;
+            }
         }
 
         public async Task AddAsync(CartDto cart)
         {
-            var cartTb = cart.ToEntity();
-            await _context.Carts.AddAsync(cartTb);
+            if (cart == null)
+            {
+                _logger.LogWarning("Null cart provided for addition.");
+                throw new ArgumentNullException(nameof(cart));
+            }
+
+            try
+            {
+                var cartTb = cart.ToEntity();
+                await _context.Carts.AddAsync(cartTb);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while adding a new cart.");
+                throw;
+            }
         }
 
         public void Update(CartDto cart)
         {
-            var cartTb = cart.ToEntity();
-            _context.Carts.Update(cartTb);
+            if (cart == null)
+            {
+                _logger.LogWarning("Null cart provided for update.");
+                throw new ArgumentNullException(nameof(cart));
+            }
+
+            try
+            {
+                var cartTb = cart.ToEntity();
+                _context.Carts.Update(cartTb);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating the cart.");
+                throw;
+            }
         }
 
         public void Delete(CartDto cart)
         {
-            var cartTb = cart.ToEntity();
-            _context.Carts.Remove(cartTb);
-        }
+            if (cart == null)
+            {
+                _logger.LogWarning("Null cart provided for deletion.");
+                throw new ArgumentNullException(nameof(cart));
+            }
 
+            try
+            {
+                var cartTb = cart.ToEntity();
+                _context.Carts.Remove(cartTb);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting the cart.");
+                throw;
+            }
+        }
         public async Task<bool> SaveChangesAsync()
         {
-            return (await _context.SaveChangesAsync()) > 0;
+            try
+            {
+                return (await _context.SaveChangesAsync()) > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while saving changes to the database.");
+                throw;
+            }
         }
 
         public async Task<CartDto> GetByUserIdAsync(string userId)
         {
-            var cartEntity = await _context.Carts
-                .Include(c => c.Items)
-                .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cartEntity == null)
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("Null or empty user ID provided for fetching cart.");
                 return null!;
+            }
 
-            var cartDto = cartEntity.ToDto();
-            return cartDto;
+            try
+            {
+                var cartEntity = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(i => i.Product)
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                if (cartEntity == null)
+                {
+                    _logger.LogInformation("Cart not found for user ID: {UserId}", userId);
+                    return null!;
+                }
+
+                var cartDto = cartEntity.ToDto();
+                return cartDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching cart for user ID: {UserId}", userId);
+                throw;
+            }
         }
 
         public async Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem)
         {
-            var cart = await _context.Carts
-                .Include(c => c.Items)
-                .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(c => c.CartId == cartId);
-
-            if (cart == null)
+            if (newItem == null)
+            {
+                _logger.LogWarning("Null item provided for addition to the cart with ID: {CartId}", cartId);
                 return null;
-
-            var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == newItem.ProductId);
-
-            if (existingItem != null)
-            {
-                existingItem.Quantity += newItem.Quantity;
             }
-            else
-            {
-                var product = await _context.Products.FindAsync(newItem.ProductId);
-                if (product == null)
-                    return null;
 
-                var newCartItem = new CartItem
+            try
+            {
+                var cart = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(i => i.Product)
+                    .FirstOrDefaultAsync(c => c.CartId == cartId);
+
+                if (cart == null)
                 {
-                    ProductId = product.ProductId,
-                    Quantity = newItem.Quantity,
-                    Product = product,
-                    CartId = cartId,
-                    CreatedBy = "System",
-                    CreatedOn = DateTime.UtcNow,
-                };
+                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
+                    return null;
+                }
 
-                cart.Items.Add(newCartItem);
+                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == newItem.ProductId);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += newItem.Quantity;
+                }
+                else
+                {
+                    var product = await _context.Products.FindAsync(newItem.ProductId);
+                    if (product == null)
+                    {
+                        _logger.LogWarning("Product not found with ID: {ProductId}", newItem.ProductId);
+                        return null;
+                    }
+
+                    var newCartItem = new CartItem
+                    {
+                        ProductId = product.ProductId,
+                        Quantity = newItem.Quantity,
+                        Product = product,
+                        CartId = cartId,
+                        CreatedBy = "System",
+                        CreatedOn = DateTime.UtcNow,
+                    };
+
+                    cart.Items.Add(newCartItem);
+                }
+
+                cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Product.Price);
+                cart.ShippingCost = ShippingCost;
+                cart.Total = cart.Subtotal + cart.ShippingCost;
+
+                await _context.SaveChangesAsync();
+
+                return cart.ToDto();
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while adding item to the cart with ID: {CartId}", cartId);
+                throw;
+            }
+        }
 
-            cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Product.Price);
-            cart.ShippingCost = 5;
-            cart.Total = cart.Subtotal + cart.ShippingCost;
+        public async Task<CartDto?> RemoveItemAsync(int cartId, int cartItemId)
+        {
+            try
+            {
+                var cart = await _context.Carts
+                    .Include(c => c.Items)
+                    .ThenInclude(i => i.Product)
+                    .FirstOrDefaultAsync(c => c.CartId == cartId);
 
-            await _context.SaveChangesAsync();
+                if (cart == null)
+                {
+                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
+                    return null;
+                }
 
-            return cart.ToDto();
+                var existingItem = cart.Items.FirstOrDefault(i => i.CartItemId == cartItemId);
+                if (existingItem == null)
+                {
+                    _logger.LogInformation("Cart item not found with ID: {CartItemId} in cart with ID: {CartId}", cartItemId, cartId);
+                    return null;
+                }
+
+                cart.Items.Remove(existingItem);
+
+                await _context.SaveChangesAsync();
+
+                return cart.ToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while removing item from the cart with ID: {CartId}", cartId);
+                throw;
+            }
         }
     }
 }

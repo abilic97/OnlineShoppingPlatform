@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/users.service';
+import { CartService } from '../services/cart.service';
 
 @Component({
     selector: 'app-login',
@@ -9,12 +10,13 @@ import { UserService } from '../services/users.service';
 })
 export class LoginComponent {
 
-    constructor(private userService: UserService, private router: Router) { }
+    constructor(private userService: UserService,
+        private router: Router) { }
 
     onGoogleLogin() {
         this.userService.loginWithGoogle().then(() => {
-            this.router.navigate(['/products']);
-        }).catch((error) => {
+            this.router.navigate(['/products']);        }
+        ).catch((error) => {
             console.error('OAuth login error:', error);
         });
     }

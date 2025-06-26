@@ -1,5 +1,4 @@
-﻿using OnlineShoppingPlatform.Data.Entities;
-using OnlineShoppingPlatform.Domain.DTO;
+﻿using OnlineShoppingPlatform.Domain.DTO;
 
 namespace OnlineShoppingPlatform.Repositories.Interfaces
 {
@@ -12,5 +11,6 @@ namespace OnlineShoppingPlatform.Repositories.Interfaces
         Task<bool> SaveChangesAsync();
         Task<CartDto> GetByUserIdAsync(string userId);
         Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem);
+        Task<CartDto?> RemoveItemAsync(int cartId, int cartItemId);
     }
 }

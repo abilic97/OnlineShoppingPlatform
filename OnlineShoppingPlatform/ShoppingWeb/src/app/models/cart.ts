@@ -1,25 +1,25 @@
 // cart.ts (models)
 
 export interface CartItem {
-    cartItemId: number;
+  cartItemId: number;
+  productId: number;
+  quantity: number;
+  product?: {
     productId: number;
-    quantity: number;
-    product?: {
-        productId: number;
-        name: string;
-        price: number;
-    };
+    name: string;
+    price: number;
+  };
 }
 
 export interface Cart {
-    cartId: number;
-    userId: string;
-    cartNumber: string;
-    status: string;
-    subtotal: number;
-    shippingCost: number;
-    total: number;
-    expiresAt?: string;
-    notes?: string;
-    items: CartItem[];
+  cartId: number;
+  userId: string;
+  cartNumber: string;
+  status: string;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  expiresAt?: string;
+  notes?: string;
+  items: CartItem[];
 }

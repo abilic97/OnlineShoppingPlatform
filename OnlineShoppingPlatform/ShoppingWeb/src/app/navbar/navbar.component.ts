@@ -1,14 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/users.service';
+import { CartService } from '../services/cart.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html'
 })
-export class NavbarComponent {
+export class NavbarComponent  {
+ cartItemCount$: number = 0;
+  constructor(private userService: UserService,
+    private cartService: CartService,
+    private router: Router) {
+      this.cartService.cartItemCount$.subscribe(value => {this.cartItemCount$ = value});
 
-  constructor(private userService: UserService, private router: Router) { }
+  }
 
   get loggedIn(): boolean {
     return !!this.userService.getToken();

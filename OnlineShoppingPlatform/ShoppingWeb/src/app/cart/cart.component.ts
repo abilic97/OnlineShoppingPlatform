@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Cart, CartItem } from '../models/cart';
+import { Cart } from '../models/cart';
 import { CartItemLocal, CartService } from '../services/cart.service';
 import { UserService } from '../services/users.service';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -9,19 +11,21 @@ import { UserService } from '../services/users.service';
 })
 export class CartComponent implements OnInit {
   cart: Cart | null = null;
-  cartId = 1; // Static for demo — replace with dynamic logic if needed
 
-  constructor(private cartService: CartService, private userService: UserService) {}
+  constructor(private cartService: CartService,
+    private userService: UserService,
+    private router: Router) { }
 
   ngOnInit(): void {
     this.loadCart();
   }
 
- loadCart(): void {
+  loadCart(): void {
     if (this.userService.isLoggedIn()) {
       this.cartService.getServerCart().subscribe({
         next: (serverCart) => {
           this.cart = serverCart;
+          console.log("here")
 
           // Merge any local cart (optional)
           const local = this.cartService.getLocalCart();
@@ -40,19 +44,24 @@ export class CartComponent implements OnInit {
   }
 
   recalc(): void {
-    if (!this.cart) return;
-    this.cartService.recalcTotals(this.cartId).subscribe({
-      next: (updatedCart) => {
-        this.cart = updatedCart;
-      },
-      error: (err) => console.error('Error recalculating', err)
-    });
+    // if (!this.cart) return;
+    // this.cartService.recalcTotals(this.cartId).subscribe({
+    //   next: (updatedCart) => {
+    //     this.cart = updatedCart;
+    //   },
+    //   error: (err) => console.error('Error recalculating', err)
+    // });
   }
 
-addItem(productId: number): void {
+  addItem(productId: number): void {
     const newItem: Partial<CartItemLocal> = { productId, quantity: 1 };
 
     if (this.userService.isLoggedIn() && this.cart) {
+      if (this.cart.cartId == 0) {
+        let cartID = localStorage.getItem("server_cart_id");
+        if (cartID != undefined)
+          this.cart.cartId = + cartID;
+      }
       this.cartService.addItem(this.cart.cartId, newItem).subscribe({
         next: (updatedCart) => this.cart = updatedCart,
         error: (err) => console.error('Error adding item to server cart', err)
@@ -63,10 +72,16 @@ addItem(productId: number): void {
   }
 
   clearCart(): void {
-    // this.cartService.delete(this.cartId).subscribe({
-    //   next: () => this.cart = { cartId: this.cartId, items: [], total: 0, userId : "null",  },
-    //   error: (err) => console.error('Error clearing cart', err)
-    // });
+    let cartId = this.cart?.cartId;
+    console.log(this.cart)
+    if (this.userService.isLoggedIn() && cartId != null) {
+      this.cartService.delete(cartId).subscribe({
+        next: (updatedCart) => { this.cart = this.cartService.createEmptyCart(); },
+        error: (err) => console.error('Error adding item to server cart', err)
+      });
+    } else {
+      this.clearLocalCart();
+    }
   }
 
   getTotal(): number {
@@ -74,7 +89,29 @@ addItem(productId: number): void {
   }
 
   removeItem(itemId: number): void {
+    console.log(this.cart, "test");
     if (!this.cart) return;
-    this.cart.items = this.cart.items.filter(item => item.cartItemId !== itemId);
+
+    let itemToRemove = this.cart.items.find(x => x.cartItemId = itemId);
+    if (itemToRemove == undefined) {
+      return;
+    }
+    if (this.userService.isLoggedIn()) {
+      console.log(itemToRemove);
+      this.cartService.removeItem(this.cart.cartId, itemToRemove).subscribe({
+        next: (updatedCart) => this.cart = updatedCart,
+        error: (err: any) => console.error('Error removing item from server cart', err)
+      });
+    } else {
+      this.cart.items = this.cart.items.filter(item => item.cartItemId !== itemId);
+      this.cartService.saveLocalCart(this.cart);
+      this.cartService.updateCartItemCount(this.cart);
+    }
+  }
+
+  clearLocalCart(): void {
+    console.log
+    localStorage.removeItem(this.cartService.localStorageKey);
+    this.cart = this.cartService.createEmptyCart();
   }
 }

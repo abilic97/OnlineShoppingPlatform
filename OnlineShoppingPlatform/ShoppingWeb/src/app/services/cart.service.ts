@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { forkJoin, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, Observable, of, tap } from 'rxjs';
 import { Cart, CartItem } from '../models/cart';
 import { UserService } from './users.service';
 
@@ -10,7 +10,9 @@ import { UserService } from './users.service';
 })
 export class CartService {
     private baseUrl = `${environment.apiUrl}/api/cart`;
-    private localStorageKey = 'local_cart';
+    public localStorageKey = 'local_cart';
+    private cartItemCountSubject = new BehaviorSubject<number>(0);
+    cartItemCount$ = this.cartItemCountSubject.asObservable();
 
     constructor(
         private http: HttpClient,
@@ -22,11 +24,24 @@ export class CartService {
     }
 
     getServerCart(): Observable<Cart> {
-        return this.http.get<Cart>(`${this.baseUrl}/user`);
+        return this.http.get<Cart>(`${this.baseUrl}/user`).pipe(
+            tap((cart: Cart) => {
+                this.updateCartItemCount(cart);
+                this.storeCartId(cart);
+            })
+        );
     }
 
-    create(cart: Partial<Cart>): Observable<Cart> {
-        return this.http.post<Cart>(this.baseUrl, cart);
+    private storeCartId(cart: Cart): void {
+        if (cart && cart.cartId) {
+            localStorage.setItem('server_cart_id', String(cart.cartId));
+        }
+    }
+
+    getServerCartCount(): Observable<Cart> {
+        return this.http.get<Cart>(`${this.baseUrl}/user`).pipe(
+            tap((cart: Cart) => this.updateCartItemCount(cart))
+        );
     }
 
     updateStatus(cartId: number, newStatus: string): Observable<void> {
@@ -42,7 +57,27 @@ export class CartService {
     }
 
     addItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
-        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, item);
+        let cartItemRequest = {
+            cartItemId: item.cartItemId,
+            cartId: cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+        }
+        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest).pipe(
+            tap(cart => this.updateCartItemCount(cart))
+        );
+    }
+
+    removeItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
+        let cartItemRequest = {
+            cartItemId: item.cartItemId,
+            cartId: cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+        }
+        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/remove`, cartItemRequest).pipe(
+            tap(cart => this.updateCartItemCount(cart))
+        );
     }
 
     getLocalCart(): Cart | null {
@@ -71,6 +106,7 @@ export class CartService {
 
         cart.total = this.getLocalCartTotal(cart);
         this.saveLocalCart(cart);
+        this.updateCartItemCount(cart); // Add this
         return cart;
     }
 
@@ -94,8 +130,20 @@ export class CartService {
         return forkJoin(mergeRequests);
     }
 
+    getCartItemCount(): Observable<number> {
+        if (this.userService.isLoggedIn()) {
+            return this.getServerCart().pipe(
+                map(cart => cart.items.reduce((total, item) => total + item.quantity, 0)),
+                catchError(() => of(0))
+            );
+        } else {
+            const localCart = this.getLocalCart();
+            const count = localCart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
+            return of(count);
+        }
+    }
 
-    private createEmptyCart(): CartLocal {
+    createEmptyCart(): CartLocal {
         return {
             cartId: 0,
             userId: '',
@@ -108,6 +156,11 @@ export class CartService {
             notes: undefined,
             items: []
         };
+    }
+
+    updateCartItemCount(cart: Cart) {
+        const count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        this.cartItemCountSubject.next(count);
     }
 
     private getLocalCartTotal(cart: Cart): number {

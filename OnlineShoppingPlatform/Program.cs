@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using OnlineShoppingPlatform;
 using OnlineShoppingPlatform.Data;
+using OnlineShoppingPlatform.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-// Add authentication services with necessary schemes
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<ShoppingDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("Shopping")));
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -35,9 +37,7 @@ app.UseAuthorization();
 
 app.UseSpaStaticFiles();
 app.MapControllers();
-//app.MapFallbackToFile("index.html");
 
-// Configure the SPA fallback for client-side routing
 app.UseSpa(spa =>
 {
     spa.Options.SourcePath = "ShoppingWeb";

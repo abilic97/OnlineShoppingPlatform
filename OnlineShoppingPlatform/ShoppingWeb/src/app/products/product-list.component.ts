@@ -4,6 +4,8 @@ import { CartService } from '../services/cart.service';
 import { Product } from '../models/product';
 import { Cart, CartItem } from '../models/cart'
 import { UserService } from '../services/users.service';
+import { NavigationEnd, Route, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
     selector: 'app-product-list',
@@ -16,11 +18,17 @@ export class ProductListComponent implements OnInit {
     constructor(
         private productService: ProductService,
         private cartService: CartService,
-        private userService: UserService
+        private userService: UserService,
+        private router: Router
     ) { }
 
     ngOnInit(): void {
         this.loadProducts();
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe(() => {
+            this.cartService.getCartItemCount().subscribe();
+        });
     }
 
     loadProducts(): void {
@@ -38,11 +46,12 @@ export class ProductListComponent implements OnInit {
         const cartItem = {
             productId: product.productId,
             quantity: 1,
-            product
+            product      
         };
 
         if (this.userService.isLoggedIn()) {
             const cartId = +localStorage.getItem('server_cart_id')!;
+        
             this.cartService.addItem(cartId, cartItem).subscribe({
                 next: updatedCart => {
                     console.log('Item added to server cart', updatedCart);

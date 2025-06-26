@@ -6,9 +6,12 @@
     <div class="d-flex align-items-center">
         <a routerLink="/cart" class="btn btn-link position-relative me-3" aria-label="Shopping cart">
             <i class="bi bi-cart" style="font-size: 1.5rem;"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                3
-            </span>
+            <ng-container *ngIf="cartItemCount$">
+                <span *ngIf="cartItemCount$ > 0"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ cartItemCount$ }}
+                </span>
+            </ng-container>
         </a>
         <div class="dropdown">
             <button class="btn btn-link dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown"
