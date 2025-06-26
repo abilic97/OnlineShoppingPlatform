@@ -35,12 +35,6 @@ namespace OnlineShoppingPlatform.Domain.EntityMappers
                 Total = cartDto.Total,
                 ExpiresAt = cartDto.ExpiresAt,
                 Notes = cartDto.Notes,
-                //TODO: Dummy values for now. In future, add auditing DB update mechanism
-                // Helps with bookeeping and customer reported bugs if we have good auditing of the system.
-                CreatedOn = DateTime.Now,
-                UpdatedOn = DateTime.Now,
-                UpdatedBy = "SYSTEM",
-                CreatedBy = "SYSTEM",
                 Items = cartDto.Items?.Select(i => i.ToEntity()).ToList() ?? new List<CartItem>()
             };
         }

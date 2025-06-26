@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace OnlineShoppingPlatform.Domain.DTO
+﻿namespace OnlineShoppingPlatform.Domain.DTO
 {
     public class ProductDto
     {

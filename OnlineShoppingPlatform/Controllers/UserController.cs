@@ -13,7 +13,6 @@ namespace OnlineShoppingPlatform.Controllers
         public UserController(IUserService userService)
         {
             _userService = userService;
-
         }
 
         [HttpGet("login/{provider}")]

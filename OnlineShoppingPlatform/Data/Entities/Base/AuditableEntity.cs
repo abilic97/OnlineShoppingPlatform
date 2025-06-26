@@ -1,18 +1,16 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OnlineShoppingPlatform.Data.Entities.Base
 {
     public abstract class AuditableEntity
     {
-        [Required]
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedOn { get; set; }
+        public DateTime? UpdatedOn { get; set; } = DateTime.UtcNow;
 
         [StringLength(100)]
-        public required string CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = "System";
 
         [StringLength(100)]
-        public string? UpdatedBy { get; set; }
+        public string? UpdatedBy { get; set; } = "Sytem";
     }
 }

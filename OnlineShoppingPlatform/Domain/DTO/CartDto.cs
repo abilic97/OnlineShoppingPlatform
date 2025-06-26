@@ -1,6 +1,4 @@
-﻿using OnlineShoppingPlatform.Data.Entities;
-
-namespace OnlineShoppingPlatform.Domain.DTO
+﻿namespace OnlineShoppingPlatform.Domain.DTO
 {
     public class CartDto
     {
@@ -11,7 +9,6 @@ namespace OnlineShoppingPlatform.Domain.DTO
         public decimal Subtotal { get; set; }
         public decimal ShippingCost { get; set; }
         public decimal Total { get; set; }
-
         public DateTime? ExpiresAt { get; set; }
         public string? Notes { get; set; }
         public IEnumerable<CartItemDto> Items { get; set; } = new List<CartItemDto>();
