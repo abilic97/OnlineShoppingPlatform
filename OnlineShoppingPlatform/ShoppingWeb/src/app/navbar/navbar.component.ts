@@ -8,13 +8,13 @@ import { Observable } from 'rxjs';
   selector: 'app-navbar',
   templateUrl: './navbar.component.html'
 })
-export class NavbarComponent  {
- cartItemCount$: number = 0;
+export class NavbarComponent {
+  cartItemCount$: number = 0;
   constructor(private userService: UserService,
     private cartService: CartService,
     private router: Router) {
-      this.cartService.cartItemCount$.subscribe(value => {this.cartItemCount$ = value});
-
+    this.cartService.getCartItemCount();
+    this.cartService.cartItemCount$.subscribe(value => { this.cartItemCount$ = value });
   }
 
   get loggedIn(): boolean {

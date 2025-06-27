@@ -130,11 +130,16 @@ export class CartService {
     getCartItemCount(): Observable<number> {
         if (this.userService.isLoggedIn()) {
             return this.getServerCart().pipe(
-                map(cart => cart.items.reduce((total, item) => total + item.quantity, 0)),
+                map(cart => {
+                    this.updateCartItemCount(cart); // ✅ update count here
+                    return cart.items.reduce((total, item) => total + item.quantity, 0);
+                }),
                 catchError(() => of(0))
             );
         } else {
             const localCart = this.getLocalCart();
+            if (localCart != null)
+                this.updateCartItemCount(localCart);
             const count = localCart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
             return of(count);
         }

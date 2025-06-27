@@ -15,7 +15,8 @@ export class LoginComponent {
 
     onGoogleLogin() {
         this.userService.loginWithGoogle().then(() => {
-            this.router.navigate(['/products']);        }
+            this.router.navigate(['/products']);
+        }
         ).catch((error) => {
             console.error('OAuth login error:', error);
         });

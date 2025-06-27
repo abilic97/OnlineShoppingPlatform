@@ -25,9 +25,7 @@ export class CartComponent implements OnInit {
       this.cartService.getServerCart().subscribe({
         next: (serverCart) => {
           this.cart = serverCart;
-          console.log("here")
 
-          // Merge any local cart (optional)
           const local = this.cartService.getLocalCart();
           if (local?.items?.length) {
             for (const item of local.items) {
@@ -79,7 +77,6 @@ export class CartComponent implements OnInit {
   }
 
   removeItem(itemId: number): void {
-    console.log(this.cart, "test");
     if (!this.cart) return;
 
     let itemToRemove = this.cart.items.find(x => x.cartItemId = itemId);
