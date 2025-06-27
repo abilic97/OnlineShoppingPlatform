@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/users.service';
 import { CartService } from '../services/cart.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -24,6 +23,7 @@ export class NavbarComponent {
   toggleLogin() {
     if (this.loggedIn) {
       this.userService.removeToken();
+      this.cartService.removeServerToken();
       this.router.navigate(['/login']);
     } else {
       this.router.navigate(['/login']);

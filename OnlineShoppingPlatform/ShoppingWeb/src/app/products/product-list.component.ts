@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { Product } from '../models/product';
-import { Cart, CartItem } from '../models/cart'
 import { UserService } from '../services/users.service';
 import { NavigationEnd, Route, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -27,7 +26,7 @@ export class ProductListComponent implements OnInit {
         this.router.events.pipe(
             filter(event => event instanceof NavigationEnd)
         ).subscribe(() => {
-            this.cartService.getCartItemCount().subscribe();
+            this.cartService.getCartItemCount();
         });
     }
 
@@ -46,12 +45,12 @@ export class ProductListComponent implements OnInit {
         const cartItem = {
             productId: product.productId,
             quantity: 1,
-            product      
+            product
         };
 
         if (this.userService.isLoggedIn()) {
             const cartId = +localStorage.getItem('server_cart_id')!;
-        
+
             this.cartService.addItem(cartId, cartItem).subscribe({
                 next: updatedCart => {
                     console.log('Item added to server cart', updatedCart);

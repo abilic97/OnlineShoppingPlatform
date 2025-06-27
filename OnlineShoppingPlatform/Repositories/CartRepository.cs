@@ -211,10 +211,7 @@ namespace OnlineShoppingPlatform.Repositories
                     cart.Items.Add(newCartItem);
                 }
 
-                cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Product.Price);
-                cart.ShippingCost = ShippingCost;
-                cart.Total = cart.Subtotal + cart.ShippingCost;
-
+                RecalculateCartTotals(cart);
                 await _context.SaveChangesAsync();
 
                 return cart.ToDto();
@@ -250,6 +247,7 @@ namespace OnlineShoppingPlatform.Repositories
 
                 cart.Items.Remove(existingItem);
 
+                RecalculateCartTotals(cart);
                 await _context.SaveChangesAsync();
 
                 return cart.ToDto();
@@ -259,6 +257,13 @@ namespace OnlineShoppingPlatform.Repositories
                 _logger.LogError(ex, "Error occurred while removing item from the cart with ID: {CartId}", cartId);
                 throw;
             }
+        }
+
+        private void RecalculateCartTotals(Cart cart)
+        {
+            cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Product.Price);
+            cart.ShippingCost = ShippingCost;
+            cart.Total = cart.Subtotal + cart.ShippingCost;
         }
     }
 }

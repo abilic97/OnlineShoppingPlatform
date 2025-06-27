@@ -38,6 +38,10 @@ export class CartService {
         }
     }
 
+    removeServerToken() {
+        localStorage.removeItem("server_cart_id");
+    }
+
     getServerCartCount(): Observable<Cart> {
         return this.http.get<Cart>(`${this.baseUrl}/user`).pipe(
             tap((cart: Cart) => this.updateCartItemCount(cart))
@@ -67,6 +71,17 @@ export class CartService {
         return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest).pipe(
             tap(cart => this.updateCartItemCount(cart))
         );
+    }
+
+    addLocalItemToServer(cartId: number, item: CartItem): Observable<Cart> {
+        let cartItemRequest = {
+            cartItemId: 0,
+            cartId: cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+            productName: item.product?.name
+        }
+        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest);
     }
 
     removeItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
@@ -101,9 +116,9 @@ export class CartService {
             });
         }
 
-        cart.total = this.getLocalCartTotal(cart);
+        cart.subtotal = this.getLocalCartTotal(cart);
         this.saveLocalCart(cart);
-        this.updateCartItemCount(cart); // Add this
+        this.updateCartItemCount(cart);
         return cart;
     }
 
@@ -131,7 +146,7 @@ export class CartService {
         if (this.userService.isLoggedIn()) {
             return this.getServerCart().pipe(
                 map(cart => {
-                    this.updateCartItemCount(cart); // ✅ update count here
+                    this.updateCartItemCount(cart);
                     return cart.items.reduce((total, item) => total + item.quantity, 0);
                 }),
                 catchError(() => of(0))
@@ -165,7 +180,7 @@ export class CartService {
         this.cartItemCountSubject.next(count);
     }
 
-    private getLocalCartTotal(cart: Cart): number {
+    getLocalCartTotal(cart: Cart): number {
         return cart.items.reduce((sum, item) => sum + item.quantity * (item.product?.price || 0), 0);
     }
 }

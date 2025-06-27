@@ -21,8 +21,7 @@ export class AuthCallbackComponent implements OnInit {
             const token = params['token'];
             if (token) {
                 this.userService.storeToken(token);
-                this.cartService.getServerCart();
-                this.router.navigate(['/products']);
+                  this.router.navigate(['/products']);            
             } else {
                 this.router.navigate(['/login']);
             }
