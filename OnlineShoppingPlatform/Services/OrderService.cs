@@ -11,14 +11,17 @@ namespace OnlineShoppingPlatform.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IProductRepository _productRepository;
         private readonly ILogger<OrderService> _logger;
+        private readonly IEncryptionHelper _encryptionHelper;
         private const string OrderStatusPending = "Pending";
 
         public OrderService(IOrderRepository orderRepository,
             IProductRepository productRepository,
+            IEncryptionHelper encryptionHelper,
             ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
+            _encryptionHelper = encryptionHelper;
             _logger = logger;
         }
         public async Task<int> PlaceOrderAsync(CartDto cartDto)
@@ -36,7 +39,7 @@ namespace OnlineShoppingPlatform.Services
                 UserId = cartDto.UserId,
                 OrderNumber = Guid.NewGuid().ToString().Substring(0, 8),
                 TotalAmount = cartDto.Total,
-                CartId = cartDto.CartId,
+                CartId = int.Parse(_encryptionHelper.Decrypt(cartDto.CartId)),
                 Notes = cartDto.Notes,
                 Status = OrderStatusPending,
                 OrderedAt = DateTime.UtcNow

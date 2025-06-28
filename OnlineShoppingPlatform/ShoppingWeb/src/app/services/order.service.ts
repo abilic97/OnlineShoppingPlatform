@@ -12,8 +12,7 @@ export class OrderService {
 
     constructor(private http: HttpClient) { }
 
-    place(item: Cart): Observable<OrderResponse> {   
-        console.log("here")
+    place(item: Cart): Observable<OrderResponse> {
         return this.http.post<OrderResponse>(`${this.baseUrl}/place`, item)
     }
 }

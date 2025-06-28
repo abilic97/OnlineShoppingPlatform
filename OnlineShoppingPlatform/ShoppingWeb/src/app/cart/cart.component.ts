@@ -67,10 +67,10 @@ export class CartComponent implements OnInit {
     const newItem: Partial<CartItemLocal> = { productId, quantity: 1 };
 
     if (this.userService.isLoggedIn() && this.cart) {
-      if (this.cart.cartId == 0) {
+      if (this.cart.cartId == '') {
         let cartID = localStorage.getItem("server_cart_id");
         if (cartID != undefined)
-          this.cart.cartId = + cartID;
+          this.cart.cartId = cartID;
       }
       this.cartService.addItem(this.cart.cartId, newItem).subscribe({
         next: (updatedCart) => this.cart = updatedCart,
@@ -123,8 +123,9 @@ export class CartComponent implements OnInit {
     this.orderService.place(this.cart).subscribe({
       next: (res: { message: any; }) => {
         alert(res.message || 'Order placed successfully!');
-        this.cartService.delete(this.cart?.cartId ?? 0).subscribe();
+        this.cartService.delete(this.cart?.cartId ?? '').subscribe();
         console.log('Order success', res);
+        this.cartService.removeServerToken();
       },
       error: (err: { error: { Error: any; }; }) => {
         alert(err.error?.Error || 'Failed to place order.');

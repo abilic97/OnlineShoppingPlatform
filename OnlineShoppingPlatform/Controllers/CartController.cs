@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Domain.DTO;
+using OnlineShoppingPlatform.Helpers;
 using OnlineShoppingPlatform.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
@@ -13,9 +15,12 @@ namespace OnlineShoppingPlatform.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
-        public CartController(ICartService cartService)
+        private readonly IEncryptionHelper _encryptionHelper;
+
+        public CartController(ICartService cartService, IEncryptionHelper encryptionHelper)
         {
             _cartService = cartService;
+            _encryptionHelper = encryptionHelper;
         }
 
         [HttpGet("user")]
@@ -49,7 +54,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateCartStatus(int id, [FromBody][Required] string newStatus)
+        public async Task<IActionResult> UpdateCartStatus([FromDecryptedRoute] int id, [FromBody][Required] string newStatus)
         {
             var cart = await _cartService.UpdateStatusAsync(id, newStatus);
             if (cart == null) return NotFound();
@@ -57,7 +62,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCart(int id)
+        public async Task<IActionResult> DeleteCart([FromDecryptedRoute] int id)
         {
             var success = await _cartService.DeleteAsync(id);
             if (!success) return NotFound();
@@ -65,7 +70,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPost("{id}/recalculate")]
-        public async Task<ActionResult<CartDto>> RecalculateTotals(int id)
+        public async Task<ActionResult<CartDto>> RecalculateTotals([FromDecryptedRoute] int id)
         {
             var cart = await _cartService.RecalculateTotalsAsync(id);
             if (cart == null) return NotFound();
@@ -73,7 +78,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpPost("{id}/items")]
-        public async Task<ActionResult<CartDto>> AddItemToCart(int id, [FromBody][Required] CartItemDto newItem)
+        public async Task<ActionResult<CartDto>> AddItemToCart([FromDecryptedRoute] int id, [FromBody][Required] CartItemDto newItem)
         {
             var cart = await _cartService.AddItemAsync(id, newItem);
             if (cart == null) return NotFound();
@@ -81,7 +86,7 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpDelete("{id}/items/{cartItemId}")]
-        public async Task<ActionResult<CartDto>> RemoveItemFromCart(int id, int cartItemId)
+        public async Task<ActionResult<CartDto>> RemoveItemFromCart([FromDecryptedRoute] int id, int cartItemId)
         {
             var cart = await _cartService.RemoveItemAsync(id, cartItemId);
             if (cart == null) return NotFound();

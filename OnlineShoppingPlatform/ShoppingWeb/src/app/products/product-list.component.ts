@@ -45,7 +45,7 @@ export class ProductListComponent implements OnInit {
         };
 
         if (this.userService.isLoggedIn()) {
-            const cartId = +localStorage.getItem('server_cart_id')!;
+            const  cartId = localStorage.getItem('server_cart_id')!;
 
             this.cartService.addItem(cartId, cartItem).subscribe({
                 next: updatedCart => {

@@ -2,7 +2,7 @@
 {
     public class CartDto
     {
-        public int CartId { get; set; }
+        public string CartId { get; set; }
         public required string UserId { get; set; }
         public required string CartNumber { get; set; }
         public string Status { get; set; } = "Open";

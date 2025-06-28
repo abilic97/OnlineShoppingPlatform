@@ -20,7 +20,8 @@ export class CartService {
     ) { }
 
     getById(cartId: number): Observable<Cart> {
-        return this.http.get<Cart>(`${this.baseUrl}/${cartId}`);
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.get<Cart>(`${this.baseUrl}/${encodedCartId}`);
     }
 
     getServerCart(): Observable<Cart> {
@@ -49,34 +50,38 @@ export class CartService {
     }
 
     updateStatus(cartId: number, newStatus: string): Observable<void> {
-        return this.http.put<void>(`${this.baseUrl}/${cartId}/status`, { newStatus });
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.put<void>(`${this.baseUrl}/${encodedCartId}/status`, { newStatus });
     }
 
-    delete(cartId: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/${cartId}`);
+    delete(cartId: string): Observable<void> {
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.delete<void>(`${this.baseUrl}/${encodedCartId}`);
     }
 
     recalcTotals(cartId: number): Observable<Cart> {
-        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/recalculate`, {});
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.post<Cart>(`${this.baseUrl}/${encodedCartId}/recalculate`, {});
     }
 
-    addItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
+    addItem(cartId: string, item: Partial<CartItem>): Observable<Cart> {
         let cartItemRequest = {
             cartItemId: item.cartItemId,
-            cartId: cartId,
+            cartId: 0,
             productId: item.productId,
             quantity: item.quantity,
             productName: item.product?.name
         }
-        return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest).pipe(
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.post<Cart>(`${this.baseUrl}/${encodedCartId}/items`, cartItemRequest).pipe(
             tap(cart => this.updateCartItemCount(cart))
         );
     }
 
-    addLocalItemToServer(cartId: number, item: CartItem): Observable<Cart> {
+    addLocalItemToServer(cartId: string, item: CartItem): Observable<Cart> {
         let cartItemRequest = {
             cartItemId: 0,
-            cartId: cartId,
+            cartId: 0,
             productId: item.productId,
             quantity: item.quantity,
             productName: item.product?.name
@@ -84,8 +89,9 @@ export class CartService {
         return this.http.post<Cart>(`${this.baseUrl}/${cartId}/items`, cartItemRequest);
     }
 
-    removeItem(cartId: number, item: Partial<CartItem>): Observable<Cart> {
-        return this.http.delete<Cart>(`${this.baseUrl}/${cartId}/items/${item.cartItemId}`).pipe(
+    removeItem(cartId: string, item: Partial<CartItem>): Observable<Cart> {
+        let encodedCartId = encodeURIComponent(cartId)
+        return this.http.delete<Cart>(`${this.baseUrl}/${encodedCartId}/items/${item.cartItemId}`).pipe(
             tap(cart => this.updateCartItemCount(cart))
         );
     }
@@ -126,7 +132,7 @@ export class CartService {
         localStorage.removeItem(this.localStorageKey);
     }
 
-    mergeLocalCartToServer(serverCartId: number): Observable<Cart[]> {
+    mergeLocalCartToServer(serverCartId: string): Observable<Cart[]> {
         const local = this.getLocalCart();
         if (!local || !local.items.length) return of([]);
 
@@ -162,7 +168,7 @@ export class CartService {
 
     createEmptyCart(): CartLocal {
         return {
-            cartId: 0,
+            cartId: '',
             userId: '',
             cartNumber: '',
             status: 'Open',
@@ -186,7 +192,7 @@ export class CartService {
 }
 
 export interface CartLocal {
-    cartId: number;
+    cartId: string;
     userId: string;
     cartNumber: string;
     status: string;

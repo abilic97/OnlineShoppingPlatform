@@ -162,7 +162,6 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Cart for user {UserId} not found", userId);
-                    throw new CartNotFoundException(userId);
                 }
                 return cart;
             }

@@ -12,7 +12,7 @@ export interface CartItem {
 }
 
 export interface Cart {
-  cartId: number;
+  cartId: string;
   userId: string;
   cartNumber: string;
   status: string;

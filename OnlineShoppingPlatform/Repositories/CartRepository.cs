@@ -11,15 +11,17 @@ namespace OnlineShoppingPlatform.Repositories
     {
         private readonly ShoppingDbContext _context;
         private readonly ILogger<CartRepository> _logger;
+        private readonly IEncryptionHelper _encryptionHelper;
         //TODO: placeholder for now. Shipping cost needs to be defined in coordinance
         //with shipping services (if external services were to be used) or defined within
         //the company itself if it also provides shipping services along with selling of goods
         //After that we can have predefined DB value based on the shipping company and/or shipping address
         private const decimal ShippingCost = 25.00m;
-        public CartRepository(ShoppingDbContext context, ILogger<CartRepository> logger)
+        public CartRepository(ShoppingDbContext context, ILogger<CartRepository> logger, IEncryptionHelper encryptionHelper)
         {
             _context = context;
             _logger = logger;
+            _encryptionHelper = encryptionHelper;
         }
 
         public async Task<CartDto> GetByIdAsync(int cartId)
@@ -43,7 +45,7 @@ namespace OnlineShoppingPlatform.Repositories
                     return null!;
                 }
 
-                var cartDto = cartEntity.ToDto();
+                var cartDto = cartEntity.ToDto(_encryptionHelper);
                 return cartDto;
             }
             catch (Exception ex)
@@ -63,7 +65,7 @@ namespace OnlineShoppingPlatform.Repositories
 
             try
             {
-                var cartTb = cart.ToEntity();
+                var cartTb = cart.ToEntity(_encryptionHelper);
                 await _context.Carts.AddAsync(cartTb);
             }
             catch (Exception ex)
@@ -83,7 +85,7 @@ namespace OnlineShoppingPlatform.Repositories
 
             try
             {
-                var cartTb = cart.ToEntity();
+                var cartTb = cart.ToEntity(_encryptionHelper);
                 _context.Carts.Update(cartTb);
             }
             catch (Exception ex)
@@ -103,7 +105,8 @@ namespace OnlineShoppingPlatform.Repositories
 
             try
             {
-                var cartTb = _context.Carts.FirstOrDefault(x => x.CartId == cart.CartId);
+                var cartId = int.Parse(_encryptionHelper.Decrypt(cart.CartId));
+                var cartTb = _context.Carts.FirstOrDefault(x => x.CartId == cartId);
                 if (cartTb == null)
                 {
                     _logger.LogWarning("Wrong ID provided for deletion");
@@ -152,7 +155,7 @@ namespace OnlineShoppingPlatform.Repositories
                     return null!;
                 }
 
-                var cartDto = cartEntity.ToDto();
+                var cartDto = cartEntity.ToDto(_encryptionHelper);
                 return cartDto;
             }
             catch (Exception ex)
@@ -214,7 +217,7 @@ namespace OnlineShoppingPlatform.Repositories
                 RecalculateCartTotals(cart);
                 await _context.SaveChangesAsync();
 
-                return cart.ToDto();
+                return cart.ToDto(_encryptionHelper);
             }
             catch (Exception ex)
             {
@@ -250,7 +253,7 @@ namespace OnlineShoppingPlatform.Repositories
                 RecalculateCartTotals(cart);
                 await _context.SaveChangesAsync();
 
-                return cart.ToDto();
+                return cart.ToDto(_encryptionHelper);
             }
             catch (Exception ex)
             {

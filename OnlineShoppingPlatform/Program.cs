@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 using OnlineShoppingPlatform;
 using OnlineShoppingPlatform.Data;
+using OnlineShoppingPlatform.Helpers;
 using OnlineShoppingPlatform.Middleware;
 using Serilog;
 
@@ -27,7 +28,11 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
 builder.Services.AddCustomDependencies();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new DecryptedIdModelBinderProvider(
+        builder.Services.BuildServiceProvider().GetRequiredService<IEncryptionHelper>()));
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSpaStaticFiles(configuration =>
 {
@@ -35,6 +40,8 @@ builder.Services.AddSpaStaticFiles(configuration =>
 });
 builder.Services.AddDbContext<ShoppingDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("Shopping")).EnableSensitiveDataLogging());
+
+builder.Services.AddSingleton<IEncryptionHelper, EncryptionHelper>();
 
 var app = builder.Build();
 app.UseMiddleware<ExceptionHandlingMiddleware>();

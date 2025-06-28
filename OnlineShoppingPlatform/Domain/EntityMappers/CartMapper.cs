@@ -5,11 +5,11 @@ namespace OnlineShoppingPlatform.Domain.EntityMappers
 {
     public static class CartMapper
     {
-        public static CartDto ToDto(this Cart cart)
+        public static CartDto ToDto(this Cart cart, IEncryptionHelper encryption)
         {
             return new CartDto
             {
-                CartId = cart.CartId,
+                CartId = encryption.Encrypt(cart.CartId.ToString()),
                 UserId = cart.UserId,
                 CartNumber = cart.CartNumber,
                 Status = cart.Status,
@@ -22,11 +22,11 @@ namespace OnlineShoppingPlatform.Domain.EntityMappers
             };
         }
 
-        public static Cart ToEntity(this CartDto cartDto)
+        public static Cart ToEntity(this CartDto cartDto, IEncryptionHelper encryption)
         {
             return new Cart
             {
-                CartId = cartDto.CartId,
+                CartId = cartDto.CartId != null ? (int.Parse(encryption.Decrypt(cartDto.CartId))) : 0,
                 UserId = cartDto.UserId,
                 CartNumber = cartDto.CartNumber,
                 Status = cartDto.Status,
