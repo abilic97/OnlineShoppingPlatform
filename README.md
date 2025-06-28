@@ -52,7 +52,7 @@ ng build
 
 1. Open the solution file `OnlineShoppingPlatform.sln` in **Visual Studio**.
 2. In the Visual Studio toolbar, select the **IIS Express** run profile.
-3. Click the green **▶ Run** button or press `F5`.
+3. Click the green **▶ Run** button.
 
 Visual Studio will:
 
