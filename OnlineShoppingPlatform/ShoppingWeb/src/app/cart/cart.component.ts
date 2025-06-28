@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Cart } from '../models/cart';
 import { CartItemLocal, CartService } from '../services/cart.service';
 import { UserService } from '../services/users.service';
-import { Router } from '@angular/router';
-import { forkJoin, of, switchMap, tap } from 'rxjs';
+import { forkJoin } from 'rxjs';
+import { OrderService } from '../services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -15,7 +15,7 @@ export class CartComponent implements OnInit {
 
   constructor(private cartService: CartService,
     private userService: UserService,
-    private router: Router) { }
+    private orderService: OrderService) { }
 
   ngOnInit(): void {
     this.loadCart();
@@ -26,42 +26,43 @@ export class CartComponent implements OnInit {
   }
 
   loadCart(): void {
-  if (!this.userService.isLoggedIn()) {
-    this.cart = this.cartService.getLocalCart();
-    return;
-  }
-  this.cartService.getServerCart().subscribe({
-    next: (serverCart) => {
-      this.cart = serverCart;
-
-      const local = this.cartService.getLocalCart();
-
-      if (!local?.items?.length) return;
-
-      const addRequests = local.items
-        .filter(item => item && item.productId)
-        .map(item => this.cartService.addLocalItemToServer(serverCart.cartId, item));
-
-      if (addRequests.length === 0) {
-        this.cartService.clearLocalCart();
-        return;
-      }
-      forkJoin(addRequests).subscribe({
-        next: (updatedCarts) => {
-          this.cart = updatedCarts[updatedCarts.length - 1];
-          this.cartService.clearLocalCart();
-        },
-        error: (mergeErr) => {
-          console.error('Error during cart merge', mergeErr);
-        }
-      });
-    },
-    error: (err) => {
-      console.error('Failed to load server cart', err);
+    if (!this.userService.isLoggedIn()) {
+      this.cart = this.cartService.getLocalCart();
+      return;
     }
-  });
-  this.cartService.getCartItemCount();
-}
+    this.cartService.getServerCart().subscribe({
+      next: (serverCart) => {
+        this.cart = serverCart;
+
+        const local = this.cartService.getLocalCart();
+
+        if (!local?.items?.length) return;
+
+        const addRequests = local.items
+          .filter(item => item && item.productId)
+          .map(item => this.cartService.addLocalItemToServer(serverCart.cartId, item));
+
+        if (addRequests.length === 0) {
+          this.cartService.clearLocalCart();
+          return;
+        }
+        forkJoin(addRequests).subscribe({
+          next: (updatedCarts) => {
+            this.cart = updatedCarts[updatedCarts.length - 1];
+            this.cartService.clearLocalCart();
+          },
+          error: (mergeErr) => {
+            console.error('Error during cart merge', mergeErr);
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to load server cart', err);
+      }
+    });
+    this.cartService.getCartItemCount();
+  }
+
   addItem(productId: number): void {
     const newItem: Partial<CartItemLocal> = { productId, quantity: 1 };
 
@@ -117,7 +118,19 @@ export class CartComponent implements OnInit {
   }
 
   placeOrder() {
+    if (!this.cart) return;
 
+    this.orderService.place(this.cart).subscribe({
+      next: (res: { message: any; }) => {
+        alert(res.message || 'Order placed successfully!');
+        this.cartService.delete(this.cart?.cartId ?? 0).subscribe();
+        console.log('Order success', res);
+      },
+      error: (err: { error: { Error: any; }; }) => {
+        alert(err.error?.Error || 'Failed to place order.');
+        console.error('Order error', err);
+      }
+    });
   }
 
   clearLocalCart(): void {

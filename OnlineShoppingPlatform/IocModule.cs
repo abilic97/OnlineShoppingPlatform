@@ -11,6 +11,7 @@ namespace OnlineShoppingPlatform
         {
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
 
             return services;
         }
@@ -20,6 +21,7 @@ namespace OnlineShoppingPlatform
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             return services;
         }

@@ -10,6 +10,8 @@ namespace OnlineShoppingPlatform.Data
         public DbSet<CartItem> CartItems { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         public ShoppingDbContext(DbContextOptions<ShoppingDbContext> options) :
             base(options)
         {
@@ -34,6 +36,24 @@ namespace OnlineShoppingPlatform.Data
                 .HasOne(u => u.UserRole)
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.UserRoleId);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.Items)
+                .WithOne(oi => oi.Order)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Cart)
+                .WithMany()
+                .HasForeignKey(o => o.CartId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
