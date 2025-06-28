@@ -1,4 +1,5 @@
 ﻿using OnlineShoppingPlatform.Domain.DTO;
+using OnlineShoppingPlatform.Exceptions;
 using OnlineShoppingPlatform.Repositories.Interfaces;
 using OnlineShoppingPlatform.Services.Interfaces;
 
@@ -28,6 +29,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Cart with id {CartId} not found", cartId);
+                    throw new CartNotFoundException(cartId);
                 }
                 return cart;
             }
@@ -66,7 +68,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Update status failed. Cart {CartId} not found.", cartId);
-                    return null;
+                    throw new CartNotFoundException(cartId);
                 }
 
                 cart.Status = newStatus;
@@ -115,7 +117,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Recalculate totals failed. Cart {CartId} not found.", cartId);
-                    return null;
+                    throw new CartNotFoundException(cartId);
                 }
 
                 decimal subtotal = 0;
@@ -160,6 +162,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Cart for user {UserId} not found", userId);
+                    throw new CartNotFoundException(userId);
                 }
                 return cart;
             }
@@ -180,6 +183,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Add item failed. Cart {CartId} not found.", cartId);
+                    throw new CartNotFoundException(cartId);
                 }
                 else
                 {
@@ -202,6 +206,7 @@ namespace OnlineShoppingPlatform.Services
                 if (cart == null)
                 {
                     _logger.LogWarning("Remove item failed. Cart {CartId} or item {CartItemId} not found.", cartId, cartItemId);
+                    throw new CartNotFoundException(cartId);
                 }
                 else
                 {

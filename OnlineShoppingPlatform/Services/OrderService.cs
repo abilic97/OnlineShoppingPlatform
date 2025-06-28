@@ -1,5 +1,6 @@
 ﻿using OnlineShoppingPlatform.Data.Entities;
 using OnlineShoppingPlatform.Domain.DTO;
+using OnlineShoppingPlatform.Exceptions;
 using OnlineShoppingPlatform.Repositories.Interfaces;
 using OnlineShoppingPlatform.Services.Interfaces;
 
@@ -47,7 +48,7 @@ namespace OnlineShoppingPlatform.Services
                                 ?? throw new Exception($"Product {item.ProductId} not found");
 
                 if (!product.IsInStock || product.StockQuantity < item.Quantity)
-                    throw new Exception($"Insufficient stock for product '{product.Name}'.");
+                    throw new InsufficientStockException($"Insufficient stock for product '{product.Name}'.");
 
                 order.Items.Add(new OrderItem
                 {
