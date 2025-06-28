@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/users.service';
 import { CartService } from '../services/cart.service';
@@ -12,7 +12,7 @@ export class NavbarComponent {
   constructor(private userService: UserService,
     private cartService: CartService,
     private router: Router) {
-    this.cartService.getCartItemCount();
+    this.cartService.getCartItemCount().subscribe();
     this.cartService.cartItemCount$.subscribe(value => { this.cartItemCount$ = value });
   }
 

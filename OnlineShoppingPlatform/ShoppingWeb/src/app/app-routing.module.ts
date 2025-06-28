@@ -9,7 +9,7 @@ import { AuthCallbackComponent } from './auth-redirect/auth-redirect.component';
 const routes: Routes = [
   { path: 'products', component: ProductListComponent },
   { path: 'cart', component: CartComponent },
-  { path: '', redirectTo: 'products', pathMatch: 'full' }, // default
+  { path: '', redirectTo: 'products', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'auth-callback', component: AuthCallbackComponent },
 ];

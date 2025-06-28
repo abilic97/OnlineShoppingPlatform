@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../services/users.service';
-import { CartService } from '../services/cart.service';
 
 @Component({
     selector: 'app-auth-callback',
@@ -12,8 +11,7 @@ export class AuthCallbackComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private userService: UserService,
-        private cartService: CartService
+        private userService: UserService
     ) { }
 
     ngOnInit() {

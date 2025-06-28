@@ -7,10 +7,7 @@ export class UserService {
 
   loginWithGoogle(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Redirect to Google OAuth endpoint
       window.location.href = '/api/user/login/Google';
-
-      // Handling OAuth success/failure elsewhere (e.g., server-side)
     });
   }
 

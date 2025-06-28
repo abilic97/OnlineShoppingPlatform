@@ -3,8 +3,7 @@ import { ProductService } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { Product } from '../models/product';
 import { UserService } from '../services/users.service';
-import { NavigationEnd, Route, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-product-list',
@@ -19,15 +18,12 @@ export class ProductListComponent implements OnInit {
         private cartService: CartService,
         private userService: UserService,
         private router: Router
-    ) { }
+    ) {
+        this.cartService.getCartItemCount();
+    }
 
     ngOnInit(): void {
         this.loadProducts();
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd)
-        ).subscribe(() => {
-            this.cartService.getCartItemCount();
-        });
     }
 
     loadProducts(): void {

@@ -27,7 +27,6 @@ export class CartComponent implements OnInit {
 
   loadCart(): void {
   if (!this.userService.isLoggedIn()) {
-    // 👤 Not logged in → load local cart
     this.cart = this.cartService.getLocalCart();
     return;
   }
