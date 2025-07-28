@@ -23,7 +23,7 @@ Alongside the design document, the task was to deliver a minimal implementation 
 - 💓 **Health check endpoint** to verify database connectivity (PoC-level)
 - 📁 **Serilog-based file logging** for request tracking and debugging
 
-> **Note:** As a bonus, a very simple frontend in Angular was implemented. It serves as a basic UI needs and would need more work to be fully functional.
+> **Note:** As a bonus, a very simple frontend in Angular was implemented. It serves as a basic UI needs and would need more work to be fully functional. There are some minor bugs that need to be fixed (like when logging in, user first needs to navigate to cart to initialize it. Also refresh on new changes  added needs to be implemented. This was just a simple example done in a few hours to better visualise the app better)
 
 ## ⚙️ Prerequisites for building the project
  
