@@ -33,4 +33,8 @@
     <Folder Include="ShoppingWeb\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineShoppingPlatform.Products\OnlineShoppingPlatform.Products.csproj" />
+  </ItemGroup>
+
 </Project>

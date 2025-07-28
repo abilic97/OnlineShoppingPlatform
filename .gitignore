@@ -1,0 +1,10 @@
+OnlineShoppingPlatform/bin/
+OnlineShoppingPlatform/obj/
+
+
+# Ignore all bin and obj folders in the project
+**/bin/
+**/obj/
+
+# Ignore specific Logs folder
+OnlineShoppingPlatform/Logs/

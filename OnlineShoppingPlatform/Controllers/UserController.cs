@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Services.Interfaces;
+using OnlineShoppingPlatform.Users.Services.Interfaces;
 using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
@@ -34,7 +34,6 @@ namespace OnlineShoppingPlatform.Controllers
             var externalUserId = authenticateResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = authenticateResult.Principal.FindFirstValue(ClaimTypes.Email);
 
-            // Fallback: Try getting the provider from the current user identity (e.g., via Claim or AuthenticationType)
             var provider = authenticateResult.Ticket?.AuthenticationScheme
                            ?? authenticateResult.Principal.Identity?.AuthenticationType
                            ?? "Unknown";

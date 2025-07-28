@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Data.Entities;
-using OnlineShoppingPlatform.Services.Interfaces;
+using OnlineShoppingPlatform.Infrastructure.Entities;
+using OnlineShoppingPlatform.Products.Services.Interfaces;
 
 namespace OnlineShoppingPlatform.Controllers
 {
@@ -31,36 +31,6 @@ namespace OnlineShoppingPlatform.Controllers
             if (product == null) return NotFound();
 
             return Ok(product);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
-        {
-            var newProduct = await _productService.CreateAsync(product);
-            return CreatedAtAction(nameof(GetProduct), new { id = newProduct.ProductId }, newProduct);
-        }
-
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
-        {
-            if (id != product.ProductId) return BadRequest("Mismatched Product ID");
-
-            var updated = await _productService.UpdateAsync(id, product);
-            if (updated == null) return NotFound();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteProduct(int id)
-        {
-            var success = await _productService.DeleteAsync(id);
-            if (!success) return NotFound();
-
-            return NoContent();
         }
     }
 }

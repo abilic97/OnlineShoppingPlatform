@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Data;
+using OnlineShoppingPlatform.Infrastructure.Data;
 
 namespace OnlineShoppingPlatform.Controllers
 {

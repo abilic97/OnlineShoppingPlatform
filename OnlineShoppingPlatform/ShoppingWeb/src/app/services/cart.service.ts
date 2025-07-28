@@ -49,19 +49,9 @@ export class CartService {
         );
     }
 
-    updateStatus(cartId: number, newStatus: string): Observable<void> {
-        let encodedCartId = encodeURIComponent(cartId)
-        return this.http.put<void>(`${this.baseUrl}/${encodedCartId}/status`, { newStatus });
-    }
-
     delete(cartId: string): Observable<void> {
         let encodedCartId = encodeURIComponent(cartId)
         return this.http.delete<void>(`${this.baseUrl}/${encodedCartId}`);
-    }
-
-    recalcTotals(cartId: number): Observable<Cart> {
-        let encodedCartId = encodeURIComponent(cartId)
-        return this.http.post<Cart>(`${this.baseUrl}/${encodedCartId}/recalculate`, {});
     }
 
     addItem(cartId: string, item: Partial<CartItem>): Observable<Cart> {

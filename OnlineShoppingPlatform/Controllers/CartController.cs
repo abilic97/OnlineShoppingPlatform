@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineShoppingPlatform.Cart.Services.Interfaces;
 using OnlineShoppingPlatform.Domain.DTO;
 using OnlineShoppingPlatform.Helpers;
-using OnlineShoppingPlatform.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
@@ -53,28 +52,12 @@ namespace OnlineShoppingPlatform.Controllers
             return Ok(totalItems);
         }
 
-        [HttpPut("{id}/status")]
-        public async Task<IActionResult> UpdateCartStatus([FromDecryptedRoute] int id, [FromBody][Required] string newStatus)
-        {
-            var cart = await _cartService.UpdateStatusAsync(id, newStatus);
-            if (cart == null) return NotFound();
-            return NoContent();
-        }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCart([FromDecryptedRoute] int id)
         {
             var success = await _cartService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
-        }
-
-        [HttpPost("{id}/recalculate")]
-        public async Task<ActionResult<CartDto>> RecalculateTotals([FromDecryptedRoute] int id)
-        {
-            var cart = await _cartService.RecalculateTotalsAsync(id);
-            if (cart == null) return NotFound();
-            return Ok(cart);
         }
 
         [HttpPost("{id}/items")]
