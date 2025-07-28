@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Domain.DTO;
+using OnlineShoppingPlatform.Carts.DTO;
 using OnlineShoppingPlatform.Orders.Services.Interfaces;
 
 namespace OnlineShoppingPlatform.Controllers

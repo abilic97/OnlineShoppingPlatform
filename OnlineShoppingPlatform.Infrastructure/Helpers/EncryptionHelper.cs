@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 
 public class EncryptionHelper : IEncryptionHelper

@@ -34,7 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OnlineShoppingPlatform.Orders\OnlineShoppingPlatform.Orders.csproj" />
     <ProjectReference Include="..\OnlineShoppingPlatform.Products\OnlineShoppingPlatform.Products.csproj" />
+    <ProjectReference Include="..\OnlineShoppingPlatform.Users\OnlineShoppingPlatform.Users.csproj" />
+    <ProjectReference Include="..\ShoppingApp.Cart\OnlineShoppingPlatform.Cart.csproj" />
   </ItemGroup>
 
 </Project>

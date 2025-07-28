@@ -1,4 +1,4 @@
-﻿namespace OnlineShoppingPlatform.Exceptions
+﻿namespace OnlineShoppingPlatform.Infrastructure.Exceptions
 {
     public class CartNotFoundException : Exception
     {

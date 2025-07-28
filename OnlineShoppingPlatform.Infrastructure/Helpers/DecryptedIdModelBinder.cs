@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace OnlineShoppingPlatform.Helpers
+namespace OnlineShoppingPlatform.Infrastructure.Helpers
 {
     public class DecryptedIdModelBinder : IModelBinder
     {

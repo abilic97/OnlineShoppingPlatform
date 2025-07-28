@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Cart.Services.Interfaces;
-using OnlineShoppingPlatform.Domain.DTO;
-using OnlineShoppingPlatform.Helpers;
+using OnlineShoppingPlatform.Infrastructure.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
