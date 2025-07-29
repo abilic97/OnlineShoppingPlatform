@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="Services\Interfaces\" />
+    <ProjectReference Include="..\OnlineShoppingPlatform.Infrastructure\OnlineShoppingPlatform.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Infr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Users", "OnlineShoppingPlatform.Users\OnlineShoppingPlatform.Users.csproj", "{731F224B-4142-4C15-8B90-63E99B3244C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Carts", "OnlineShoppingPlatform.Carts\OnlineShoppingPlatform.Carts.csproj", "{2696D36E-616F-41DF-BB38-6607ABCD521A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Cart", "OnlineShoppingPlatform.Cart\OnlineShoppingPlatform.Cart.csproj", "{BCCB575B-EC0F-096A-44FC-3DD60E224949}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +43,10 @@ Global
 		{731F224B-4142-4C15-8B90-63E99B3244C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{731F224B-4142-4C15-8B90-63E99B3244C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{731F224B-4142-4C15-8B90-63E99B3244C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2696D36E-616F-41DF-BB38-6607ABCD521A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2696D36E-616F-41DF-BB38-6607ABCD521A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2696D36E-616F-41DF-BB38-6607ABCD521A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2696D36E-616F-41DF-BB38-6607ABCD521A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCCB575B-EC0F-096A-44FC-3DD60E224949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCCB575B-EC0F-096A-44FC-3DD60E224949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCCB575B-EC0F-096A-44FC-3DD60E224949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCCB575B-EC0F-096A-44FC-3DD60E224949}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
