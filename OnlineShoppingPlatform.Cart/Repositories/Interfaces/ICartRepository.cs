@@ -7,7 +7,7 @@ namespace OnlineShoppingPlatform.Carts.Repositories.Interfaces
     {
         Task AddAsync(CartDto cart);
         Task<bool> DeleteAsync(int cartId);
-        Task<CartDto> GetByUserIdAsync(string userId);
+        Task<Cart?> GetByUserIdAsync(string userId);
         Task UpdateAsync(Cart cart);
         Task<Cart?> GetCartWithItemsAsync(int cartId);
     }

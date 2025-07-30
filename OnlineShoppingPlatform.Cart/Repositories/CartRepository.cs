@@ -63,34 +63,31 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             }
         }
 
-        public async Task<CartDto> GetByUserIdAsync(string userId)
+        public async Task<Cart?> GetByUserIdAsync(string userId)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                _logger.LogWarning("Null or empty user ID provided for fetching cart.");
-                return null!;
+                _logger.LogWarning("User ID is null or empty.");
+                throw new ArgumentNullException(nameof(userId));
             }
 
             try
             {
-                var cartEntity = await _context.Carts
-                    .AsNoTracking()
+                var cart = await _context.Carts
                     .Include(c => c.Items)
                     .ThenInclude(i => i.Product)
                     .FirstOrDefaultAsync(c => c.UserId == userId);
 
-                if (cartEntity == null)
+                if (cart == null)
                 {
-                    _logger.LogInformation("Cart not found for user ID: {UserId}", userId);
-                    return null!;
+                    _logger.LogInformation("No cart found for user ID: {UserId}", userId);
                 }
 
-                var cartDto = cartEntity.ToDto(_encryptionHelper);
-                return cartDto;
+                return cart;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while fetching cart for user ID: {UserId}", userId);
+                _logger.LogError(ex, "Error occurred while retrieving cart for user ID: {UserId}", userId);
                 throw;
             }
         }

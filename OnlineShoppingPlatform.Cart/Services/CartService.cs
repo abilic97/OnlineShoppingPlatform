@@ -31,8 +31,24 @@ namespace OnlineShoppingPlatform.Carts.Services
 
         public async Task<CartDto> GetOrCreateUserCartAsync(string userId)
         {
-            var cart = await _cartRepository.GetByUserIdAsync(userId);
-            return cart ?? await CreateAsync(CreateNewCart(userId));
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                _logger.LogWarning("Null or empty user ID provided.");
+                throw new ArgumentNullException(nameof(userId));
+            }
+
+            var existingCart = await _cartRepository.GetByUserIdAsync(userId);
+            if (existingCart != null)
+            {
+                _logger.LogInformation("Found existing cart for user {UserId}", userId);
+                return existingCart.ToDto(_encryptionHelper);
+            }
+
+            _logger.LogInformation("No cart found for user {UserId}, creating new one.", userId);
+
+            var newCart = await CreateAsync(CreateNewCart(userId));
+
+            return newCart;
         }
 
         public async Task<bool> DeleteAsync(int cartId)
