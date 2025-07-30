@@ -22,7 +22,7 @@ export class UserService {
   removeToken() {
     localStorage.removeItem('auth_token');
   }
-  
+
   isLoggedIn(): boolean {
     const token = this.getToken();
     if (!token) return false;
@@ -40,7 +40,7 @@ export class UserService {
       const payloadJson = atob(base64Payload);
       return JSON.parse(payloadJson);
     } catch {
-      return null;
+      console.log("Error happened while parsing JWT")
     }
   }
 }

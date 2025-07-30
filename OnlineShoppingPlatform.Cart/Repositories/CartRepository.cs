@@ -13,47 +13,11 @@ namespace OnlineShoppingPlatform.Carts.Repositories
         private readonly ShoppingDbContext _context;
         private readonly ILogger<CartRepository> _logger;
         private readonly IEncryptionHelper _encryptionHelper;
-        //TODO: placeholder for now. Shipping cost needs to be defined in coordinance
-        //with shipping services (if external services were to be used) or defined within
-        //the company itself if it also provides shipping services along with selling of goods
-        //After that we can have predefined DB value based on the shipping company and/or shipping address
-        private const decimal ShippingCost = 25.00m;
         public CartRepository(ShoppingDbContext context, ILogger<CartRepository> logger, IEncryptionHelper encryptionHelper)
         {
             _context = context;
             _logger = logger;
             _encryptionHelper = encryptionHelper;
-        }
-
-        public async Task<CartDto> GetByIdAsync(int cartId)
-        {
-            try
-            {
-                if (cartId <= 0)
-                {
-                    _logger.LogWarning("Invalid cart ID provided: {CartId}", cartId);
-                    return null!;
-                }
-
-                var cartEntity = await _context.Carts
-                    .Include(c => c.Items)
-                    .ThenInclude(i => i.Product)
-                    .FirstOrDefaultAsync(c => c.CartId == cartId);
-
-                if (cartEntity == null)
-                {
-                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
-                    return null!;
-                }
-
-                var cartDto = cartEntity.ToDto(_encryptionHelper);
-                return cartDto;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while fetching cart with ID: {CartId}", cartId);
-                throw;
-            }
         }
 
         public async Task AddAsync(CartDto cart)
@@ -68,6 +32,7 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             {
                 var cartTb = cart.ToEntity(_encryptionHelper);
                 await _context.Carts.AddAsync(cartTb);
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -76,24 +41,20 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             }
         }
 
-        public void Delete(CartDto cart)
+        public async Task<bool> DeleteAsync(int cartId)
         {
-            if (cart == null)
-            {
-                _logger.LogWarning("Null cart provided for deletion.");
-                throw new ArgumentNullException(nameof(cart));
-            }
-
             try
             {
-                var cartId = int.Parse(_encryptionHelper.Decrypt(cart.CartId));
-                var cartTb = _context.Carts.FirstOrDefault(x => x.CartId == cartId);
-                if (cartTb == null)
+                var cartEntity = _context.Carts.FirstOrDefault(x => x.CartId == cartId);
+                if (cartEntity == null)
                 {
                     _logger.LogWarning("Wrong ID provided for deletion");
-                    throw new ArgumentOutOfRangeException(cart.CartId.ToString());
+                    throw new ArgumentOutOfRangeException(cartId.ToString());
                 }
-                _context.Carts.Remove(cartTb);
+                _context.Carts.Remove(cartEntity);
+                var result = await _context.SaveChangesAsync();
+
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -134,108 +95,33 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             }
         }
 
-        public async Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem)
+        public async Task<Cart?> GetCartWithItemsAsync(int cartId)
         {
-            if (newItem == null)
+            return await _context.Carts
+                .Include(c => c.Items)
+                .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(c => c.CartId == cartId);
+        }
+
+        public async Task UpdateAsync(Cart cart)
+        {
+            if (cart == null)
             {
-                _logger.LogWarning("Null item provided for addition to the cart with ID: {CartId}", cartId);
-                return null;
+                _logger.LogWarning("Null cart provided for update.");
+                throw new ArgumentNullException(nameof(cart));
             }
 
             try
             {
-                var cart = await _context.Carts
-                    .Include(c => c.Items)
-                    .ThenInclude(i => i.Product)
-                    .FirstOrDefaultAsync(c => c.CartId == cartId);
-
-                if (cart == null)
-                {
-                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
-                    return null;
-                }
-
-                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == newItem.ProductId);
-
-                if (existingItem != null)
-                {
-                    existingItem.Quantity += newItem.Quantity;
-                }
-                else
-                {
-                    var product = await _context.Products.FindAsync(newItem.ProductId);
-                    if (product == null)
-                    {
-                        _logger.LogWarning("Product not found with ID: {ProductId}", newItem.ProductId);
-                        return null;
-                    }
-
-                    var newCartItem = new CartItem
-                    {
-                        ProductId = product.ProductId,
-                        Quantity = newItem.Quantity,
-                        Product = product,
-                        CartId = cartId,
-                        CreatedBy = "System",
-                        CreatedOn = DateTime.UtcNow,
-                    };
-
-                    cart.Items.Add(newCartItem);
-                }
-
-                RecalculateCartTotals(cart);
+                _context.Carts.Update(cart);
                 await _context.SaveChangesAsync();
-
-                return cart.ToDto(_encryptionHelper);
+                _logger.LogInformation("Successfully updated cart with ID: {CartId}", cart.CartId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while adding item to the cart with ID: {CartId}", cartId);
+                _logger.LogError(ex, "Error occurred while updating cart with ID: {CartId}", cart.CartId);
                 throw;
             }
-        }
-
-        public async Task<CartDto?> RemoveItemAsync(int cartId, int cartItemId)
-        {
-            try
-            {
-                var cart = await _context.Carts
-                    .Include(c => c.Items)
-                    .ThenInclude(i => i.Product)
-                    .FirstOrDefaultAsync(c => c.CartId == cartId);
-
-                if (cart == null)
-                {
-                    _logger.LogInformation("Cart not found with ID: {CartId}", cartId);
-                    return null;
-                }
-
-                var existingItem = cart.Items.FirstOrDefault(i => i.CartItemId == cartItemId);
-                if (existingItem == null)
-                {
-                    _logger.LogInformation("Cart item not found with ID: {CartItemId} in cart with ID: {CartId}", cartItemId, cartId);
-                    return null;
-                }
-
-                cart.Items.Remove(existingItem);
-
-                RecalculateCartTotals(cart);
-                await _context.SaveChangesAsync();
-
-                return cart.ToDto(_encryptionHelper);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while removing item from the cart with ID: {CartId}", cartId);
-                throw;
-            }
-        }
-
-        private void RecalculateCartTotals(Cart cart)
-        {
-            cart.Subtotal = cart.Items.Sum(i => i.Quantity * i.Product.Price);
-            cart.ShippingCost = ShippingCost;
-            cart.Total = cart.Subtotal + cart.ShippingCost;
         }
     }
 }

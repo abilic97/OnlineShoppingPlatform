@@ -1,14 +1,14 @@
 ﻿using OnlineShoppingPlatform.Carts.DTO;
+using OnlineShoppingPlatform.Infrastructure.Entities;
 
 namespace OnlineShoppingPlatform.Carts.Repositories.Interfaces
 {
     public interface ICartRepository
     {
-        Task<CartDto> GetByIdAsync(int cartId);
         Task AddAsync(CartDto cart);
-        void Delete(CartDto cart);
+        Task<bool> DeleteAsync(int cartId);
         Task<CartDto> GetByUserIdAsync(string userId);
-        Task<CartDto?> AddItemAsync(int cartId, CartItemDto newItem);
-        Task<CartDto?> RemoveItemAsync(int cartId, int cartItemId);
+        Task UpdateAsync(Cart cart);
+        Task<Cart?> GetCartWithItemsAsync(int cartId);
     }
 }

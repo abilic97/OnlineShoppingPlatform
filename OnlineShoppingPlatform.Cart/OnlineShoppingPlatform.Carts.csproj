@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OnlineShoppingPlatform.Infrastructure\OnlineShoppingPlatform.Infrastructure.csproj" />
+    <ProjectReference Include="..\OnlineShoppingPlatform.Products\OnlineShoppingPlatform.Products.csproj" />
   </ItemGroup>
 
 </Project>
