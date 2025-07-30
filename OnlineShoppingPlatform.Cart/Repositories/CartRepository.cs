@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OnlineShoppingPlatform.Cart.Repositories.Interfaces;
+using OnlineShoppingPlatform.Carts.Repositories.Interfaces;
 using OnlineShoppingPlatform.Carts.DTO;
 using OnlineShoppingPlatform.Infrastructure.Data;
 using OnlineShoppingPlatform.Infrastructure.Entities;
+using OnlineShoppingPlatform.Carts.Mappers;
 
-namespace OnlineShoppingPlatform.Cart.Repositories
+namespace OnlineShoppingPlatform.Carts.Repositories
 {
     public class CartRepository : ICartRepository
     {
@@ -269,3 +270,4 @@ namespace OnlineShoppingPlatform.Cart.Repositories
             cart.Total = cart.Subtotal + cart.ShippingCost;
         }
     }
+}

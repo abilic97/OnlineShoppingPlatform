@@ -1,4 +1,6 @@
-﻿namespace OnlineShoppingPlatform.Orders.Services.Interfaces
+﻿using OnlineShoppingPlatform.Carts.DTO;
+
+namespace OnlineShoppingPlatform.Orders.Services.Interfaces
 {
     public interface IOrderService
     {

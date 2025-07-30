@@ -1,11 +1,10 @@
-﻿using OnlineShoppingPlatform.Cart.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using OnlineShoppingPlatform.Carts.Repositories.Interfaces;
+using OnlineShoppingPlatform.Carts.Services.Interfaces;
+using OnlineShoppingPlatform.Carts.DTO;
+using OnlineShoppingPlatform.Infrastructure.Exceptions;
 
-namespace OnlineShoppingPlatform.Cart.Services
+namespace OnlineShoppingPlatform.Carts.Services
 {
     public class CartService : ICartService
     {
@@ -134,3 +133,4 @@ namespace OnlineShoppingPlatform.Cart.Services
             return 5.00m;
         }
     }
+}

@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
-using OnlineShoppingPlatform;
-using OnlineShoppingPlatform.Data;
-using OnlineShoppingPlatform.Helpers;
+using OnlineShoppingPlatform.Carts;
+using OnlineShoppingPlatform.Infrastructure.Data;
+using OnlineShoppingPlatform.Infrastructure.Helpers;
 using OnlineShoppingPlatform.Middleware;
+using OnlineShoppingPlatform.Orders;
+using OnlineShoppingPlatform.Products;
+using OnlineShoppingPlatform.Users;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,12 +30,18 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     });
-builder.Services.AddCustomDependencies();
+builder.Services
+    .AddProductsModule()
+    .AddCartsModule()
+    .AddOrdersModule()
+    .AddUsersModule();
+
 builder.Services.AddControllers(options =>
 {
     options.ModelBinderProviders.Insert(0, new DecryptedIdModelBinderProvider(
         builder.Services.BuildServiceProvider().GetRequiredService<IEncryptionHelper>()));
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSpaStaticFiles(configuration =>
 {
@@ -56,11 +65,6 @@ app.MapControllers();
 app.UseSpa(spa =>
 {
     spa.Options.SourcePath = "ShoppingWeb";
-    //if (app.Environment.IsDevelopment())
-    //{
-    //    // If dev, proxy to Angular CLI if desired
-    //    spa.UseProxyToSpaDevelopmentServer("http://localhost:8000");
-    //}
 });
 
 app.Run();

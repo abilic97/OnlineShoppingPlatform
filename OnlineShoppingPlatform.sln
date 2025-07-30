@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Infr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Users", "OnlineShoppingPlatform.Users\OnlineShoppingPlatform.Users.csproj", "{731F224B-4142-4C15-8B90-63E99B3244C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Cart", "OnlineShoppingPlatform.Cart\OnlineShoppingPlatform.Cart.csproj", "{BCCB575B-EC0F-096A-44FC-3DD60E224949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineShoppingPlatform.Carts", "OnlineShoppingPlatform.Cart\OnlineShoppingPlatform.Carts.csproj", "{BCCB575B-EC0F-096A-44FC-3DD60E224949}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

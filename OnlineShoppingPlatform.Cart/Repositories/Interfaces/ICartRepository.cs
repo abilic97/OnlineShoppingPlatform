@@ -1,11 +1,6 @@
 ﻿using OnlineShoppingPlatform.Carts.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OnlineShoppingPlatform.Cart.Repositories.Interfaces
+namespace OnlineShoppingPlatform.Carts.Repositories.Interfaces
 {
     public interface ICartRepository
     {

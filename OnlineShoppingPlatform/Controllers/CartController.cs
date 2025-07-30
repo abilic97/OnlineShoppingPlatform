@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShoppingPlatform.Cart.Services.Interfaces;
+using OnlineShoppingPlatform.Carts.DTO;
+using OnlineShoppingPlatform.Carts.Services.Interfaces;
 using OnlineShoppingPlatform.Infrastructure.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -13,12 +14,10 @@ namespace OnlineShoppingPlatform.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
-        private readonly IEncryptionHelper _encryptionHelper;
 
-        public CartController(ICartService cartService, IEncryptionHelper encryptionHelper)
+        public CartController(ICartService cartService)
         {
             _cartService = cartService;
-            _encryptionHelper = encryptionHelper;
         }
 
         [HttpGet("user")]

@@ -54,5 +54,13 @@ namespace OnlineShoppingPlatform.Products.Repositories
                 throw;
             }
         }
+
+        public async Task<List<Product>> GetByIdsAsync(IEnumerable<int> productIds)
+        {
+            var ids = productIds.Distinct().ToList();
+            return await _context.Products
+                .Where(p => ids.Contains(p.ProductId))
+                .ToListAsync();
+        }
     }
 }

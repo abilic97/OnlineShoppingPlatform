@@ -63,4 +63,18 @@ public class EncryptionHelper : IEncryptionHelper
 
         return sr.ReadToEnd();
     }
+    public bool TryDecrypt(string encryptedText, out string? plainText)
+    {
+        plainText = null;
+
+        try
+        {
+            plainText = Decrypt(encryptedText);
+            return true;
+        }
+        catch
+        {
+            return false; // swallow and signal failure
+        }
+    }
 }

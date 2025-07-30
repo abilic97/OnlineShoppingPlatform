@@ -6,5 +6,6 @@ namespace OnlineShoppingPlatform.Products.Repositories.Interfaces
     {
         Task<IEnumerable<Product>> GetAllAsync();
         Task<Product> GetByIdAsync(int productId);
+        Task<List<Product>> GetByIdsAsync(IEnumerable<int> productIds);
     }
 }

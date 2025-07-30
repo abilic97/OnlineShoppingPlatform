@@ -1,6 +1,6 @@
 ﻿using OnlineShoppingPlatform.Carts.DTO;
 
-namespace OnlineShoppingPlatform.Cart.Services.Interfaces
+namespace OnlineShoppingPlatform.Carts.Services.Interfaces
 {
     public interface ICartService
     {
