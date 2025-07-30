@@ -33,7 +33,7 @@ namespace OnlineShoppingPlatform.Products.Services
             if (productId <= default(int))
             {
                 _logger.LogWarning("Invalid product ID provided: {ProductId}", productId);
-                return null!;
+                throw new ArgumentOutOfRangeException(nameof(productId), "Product ID out of bounds.");
             }
 
             try

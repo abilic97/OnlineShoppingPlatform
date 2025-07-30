@@ -8,6 +8,7 @@ namespace OnlineShoppingPlatform.Orders.Factories
     public class OrderFactory : IOrderFactory
     {
         private readonly IEncryptionHelper _encryptionHelper;
+        private const int OrderNumberLength = 8;
 
         public OrderFactory(IEncryptionHelper encryptionHelper)
         {
@@ -57,7 +58,7 @@ namespace OnlineShoppingPlatform.Orders.Factories
 
         private string GenerateOrderNumber()
         {
-            return Guid.NewGuid().ToString("N")[..8];
+            return Guid.NewGuid().ToString("N")[..OrderNumberLength];
         }
     }
 }

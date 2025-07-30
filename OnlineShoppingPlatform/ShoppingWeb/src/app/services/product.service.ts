@@ -19,16 +19,4 @@ export class ProductService {
     getById(productId: number): Observable<Product> {
         return this.http.get<Product>(`${this.baseUrl} / ${productId} `);
     }
-
-    create(product: Product): Observable<Product> {
-        return this.http.post<Product>(this.baseUrl, product);
-    }
-
-    update(product: Product): Observable<void> {
-        return this.http.put<void>(`${this.baseUrl} / ${product.productId} `, product);
-    }
-
-    delete(productId: number): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl} / ${productId} `);
-    }
 }

@@ -76,26 +76,6 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             }
         }
 
-        public void Update(CartDto cart)
-        {
-            if (cart == null)
-            {
-                _logger.LogWarning("Null cart provided for update.");
-                throw new ArgumentNullException(nameof(cart));
-            }
-
-            try
-            {
-                var cartTb = cart.ToEntity(_encryptionHelper);
-                _context.Carts.Update(cartTb);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while updating the cart.");
-                throw;
-            }
-        }
-
         public void Delete(CartDto cart)
         {
             if (cart == null)
@@ -118,18 +98,6 @@ namespace OnlineShoppingPlatform.Carts.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while deleting the cart.");
-                throw;
-            }
-        }
-        public async Task<bool> SaveChangesAsync()
-        {
-            try
-            {
-                return (await _context.SaveChangesAsync()) > 0;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while saving changes to the database.");
                 throw;
             }
         }
