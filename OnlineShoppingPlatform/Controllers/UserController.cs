@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShoppingPlatform.Users.Services.Interfaces;
-using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Controllers
 {
@@ -18,7 +17,11 @@ namespace OnlineShoppingPlatform.Controllers
         [HttpGet("login/{provider}")]
         public IActionResult Login(string provider)
         {
-            string redirectUrl = Url.Action("OAuthCallback", "User");
+            string? redirectUrl = Url.Action("OAuthCallback", "User");
+
+            if (redirectUrl == null)
+                return BadRequest("Failed to generate redirect URL.");
+
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
             return Challenge(properties, provider);
         }
@@ -31,14 +34,8 @@ namespace OnlineShoppingPlatform.Controllers
             if (!authenticateResult.Succeeded)
                 return BadRequest("External authentication error");
 
-            var externalUserId = authenticateResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var email = authenticateResult.Principal.FindFirstValue(ClaimTypes.Email);
-
-            var provider = authenticateResult.Ticket?.AuthenticationScheme
-                           ?? authenticateResult.Principal.Identity?.AuthenticationType
-                           ?? "Unknown";
-
-            var user = await _userService.CreateLocalUserAsync(externalUserId, email, provider);
+            var user = await _userService.ProcessExternalLoginAsync(
+                authenticateResult.Principal!, authenticateResult.Ticket?.AuthenticationScheme);
 
             var token = _userService.GenerateJwtToken(user);
 

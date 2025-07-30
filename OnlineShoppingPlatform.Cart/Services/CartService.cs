@@ -18,21 +18,10 @@ namespace OnlineShoppingPlatform.Carts.Services
             _logger = logger;
         }
 
-        public async Task<CartDto> CreateAsync(CartDto cart)
+        public async Task<CartDto> GetOrCreateUserCartAsync(string userId)
         {
-            if (cart == null) throw new ArgumentNullException(nameof(cart));
-            try
-            {
-                _logger.LogInformation("Creating new cart for user {UserId}", cart.UserId);
-                await _cartRepository.AddAsync(cart);
-                await _cartRepository.SaveChangesAsync();
-                return cart;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating cart for user {UserId}", cart.UserId);
-                throw;
-            }
+            var cart = await _cartRepository.GetByUserIdAsync(userId);
+            return cart ?? await CreateAsync(CreateNewCart(userId));
         }
 
         public async Task<bool> DeleteAsync(int cartId)
@@ -55,27 +44,6 @@ namespace OnlineShoppingPlatform.Carts.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting cart {CartId}", cartId);
-                throw;
-            }
-        }
-
-        public async Task<CartDto> GetByUserIdAsync(string userId)
-        {
-            if (string.IsNullOrEmpty(userId)) throw new ArgumentNullException(nameof(userId));
-
-            try
-            {
-                _logger.LogInformation("Fetching cart for user {UserId}", userId);
-                var cart = await _cartRepository.GetByUserIdAsync(userId);
-                if (cart == null)
-                {
-                    _logger.LogWarning("Cart for user {UserId} not found", userId);
-                }
-                return cart;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching cart for user {UserId}", userId);
                 throw;
             }
         }
@@ -128,9 +96,31 @@ namespace OnlineShoppingPlatform.Carts.Services
             }
         }
 
-        private decimal CalculateShippingCost(CartDto cart)
+        private async Task<CartDto> CreateAsync(CartDto cart)
         {
-            return 5.00m;
+            if (cart == null) throw new ArgumentNullException(nameof(cart));
+            try
+            {
+                _logger.LogInformation("Creating new cart for user {UserId}", cart.UserId);
+                await _cartRepository.AddAsync(cart);
+                await _cartRepository.SaveChangesAsync();
+                return cart;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating cart for user {UserId}", cart.UserId);
+                throw;
+            }
+        }
+
+        private CartDto CreateNewCart(string userId)
+        {
+            return new CartDto
+            {
+                UserId = userId,
+                CartNumber = Guid.NewGuid().ToString(),
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+            };
         }
     }
 }

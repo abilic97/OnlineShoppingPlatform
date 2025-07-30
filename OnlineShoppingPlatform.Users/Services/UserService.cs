@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using OnlineShoppingPlatform.Infrastructure.Entities;
 using OnlineShoppingPlatform.Users.Services.Interfaces;
-using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using OnlineShoppingPlatform.Users.Repositories.Interfaces;
+using System.Security.Claims;
 
 namespace OnlineShoppingPlatform.Users.Services
 {
@@ -24,6 +24,19 @@ namespace OnlineShoppingPlatform.Users.Services
         {
             _userRepository = userRepository;
             _configuration = configuration;
+        }
+
+        public async Task<User> ProcessExternalLoginAsync(ClaimsPrincipal principal, string? scheme)
+        {
+            var externalUserId = principal?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var email = principal?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var provider = scheme ?? principal.Identity?.AuthenticationType ?? "Unknown";
+
+            if (string.IsNullOrEmpty(externalUserId) || string.IsNullOrEmpty(email))
+                throw new InvalidOperationException("Invalid external login data");
+
+            var user = await CreateLocalUserAsync(externalUserId, email, provider);
+            return user;
         }
 
         public async Task<User> CreateLocalUserAsync(string externalUserId, string email, string provider)

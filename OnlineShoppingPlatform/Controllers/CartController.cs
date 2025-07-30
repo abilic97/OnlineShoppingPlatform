@@ -21,33 +21,13 @@ namespace OnlineShoppingPlatform.Controllers
         }
 
         [HttpGet("user")]
-        public async Task<ActionResult<CartDto>> GetUserCart()
+        public async Task<ActionResult<CartDto>> GetorCreateUserCart()
         {
             var userId = GetUserId();
             if (userId == null) return Unauthorized();
 
-            var cart = await _cartService.GetByUserIdAsync(userId);
-            if (cart == null)
-            {
-                cart = await _cartService.CreateAsync(new CartDto
-                {
-                    UserId = userId,
-                    CartNumber = Guid.NewGuid().ToString(),
-                    ExpiresAt = DateTime.UtcNow.AddMinutes(30)
-                });
-            }
+            var cart = await _cartService.GetOrCreateUserCartAsync(userId);
             return Ok(cart);
-        }
-
-        [HttpGet("count")]
-        public async Task<ActionResult<int>> GetUserCartNumberOfItems()
-        {
-            var userId = GetUserId();
-            if (userId == null) return Unauthorized();
-            var cart = await _cartService.GetByUserIdAsync(userId);
-            var totalItems = cart?.Items.Count() ?? 0;
-
-            return Ok(totalItems);
         }
 
         [HttpDelete("{id}")]
