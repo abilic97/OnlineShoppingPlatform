@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { BehaviorSubject, catchError, forkJoin, map, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Cart, CartItem } from '../models/cart';
 import { UserService } from './users.service';
 
@@ -33,20 +33,8 @@ export class CartService {
         );
     }
 
-    private storeCartId(cart: Cart): void {
-        if (cart && cart.cartId) {
-            localStorage.setItem('server_cart_id', String(cart.cartId));
-        }
-    }
-
     removeServerToken() {
         localStorage.removeItem("server_cart_id");
-    }
-
-    getServerCartCount(): Observable<Cart> {
-        return this.http.get<Cart>(`${this.baseUrl}/user`).pipe(
-            tap((cart: Cart) => this.updateCartItemCount(cart))
-        );
     }
 
     delete(cartId: string): Observable<void> {
@@ -122,22 +110,6 @@ export class CartService {
         localStorage.removeItem(this.localStorageKey);
     }
 
-    mergeLocalCartToServer(serverCartId: string): Observable<Cart[]> {
-        const local = this.getLocalCart();
-        if (!local || !local.items.length) return of([]);
-
-        const mergeRequests = local.items.map(item =>
-            this.addItem(serverCartId, {
-                productId: item.productId,
-                quantity: item.quantity
-            })
-        );
-
-        this.clearLocalCart();
-
-        return forkJoin(mergeRequests);
-    }
-
     getCartItemCount(): Observable<number> {
         if (this.userService.isLoggedIn()) {
             return this.getServerCart().pipe(
@@ -154,6 +126,45 @@ export class CartService {
             const count = localCart?.items.reduce((total, item) => total + item.quantity, 0) || 0;
             return of(count);
         }
+    }
+
+    syncCart(): Observable<Cart> {
+        if (!this.userService.isLoggedIn()) {
+            const localCart = this.getLocalCart();
+            return of(localCart ?? this.createEmptyCart());
+        }
+        return this.getServerCart().pipe(
+            switchMap(serverCart => {
+                const local = this.getLocalCart();
+                if (!local?.items?.length) return of(serverCart);
+
+                const addRequests = local.items
+                    .filter(item => item?.productId)
+                    .map(item => this.addLocalItemToServer(serverCart.cartId, item));
+
+                if (addRequests.length === 0) {
+                    this.clearLocalCart();
+                    return of(serverCart);
+                }
+
+                return forkJoin(addRequests).pipe(
+                    map(updatedCarts => {
+                        const merged = updatedCarts[updatedCarts.length - 1];
+                        this.clearLocalCart();
+                        return merged;
+                    }),
+                    catchError(mergeErr => {
+                        console.error('Error during cart merge', mergeErr);
+                        return of(serverCart);
+                    })
+                );
+            }),
+            catchError(err => {
+                console.error('Failed to load server cart', err);
+                const fallback = this.getLocalCart() ?? this.createEmptyCart();
+                return of(fallback);
+            })
+        );
     }
 
     createEmptyCart(): CartLocal {
@@ -176,8 +187,18 @@ export class CartService {
         this.cartItemCountSubject.next(count);
     }
 
+    resetCartItemCount() {
+        this.cartItemCountSubject.next(0);
+    }
+
     getLocalCartTotal(cart: Cart): number {
         return cart.items.reduce((sum, item) => sum + item.quantity * (item.product?.price || 0), 0);
+    }
+
+    private storeCartId(cart: Cart): void {
+        if (cart && cart.cartId) {
+            localStorage.setItem('server_cart_id', String(cart.cartId));
+        }
     }
 }
 

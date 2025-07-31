@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Cart } from '../models/cart';
+import { Cart, CartItem } from '../models/cart';
 import { CartItemLocal, CartService } from '../services/cart.service';
 import { UserService } from '../services/users.service';
 import { forkJoin } from 'rxjs';
@@ -26,41 +26,16 @@ export class CartComponent implements OnInit {
   }
 
   loadCart(): void {
-    if (!this.userService.isLoggedIn()) {
-      this.cart = this.cartService.getLocalCart();
-      return;
-    }
-    this.cartService.getServerCart().subscribe({
-      next: (serverCart) => {
-        this.cart = serverCart;
-
-        const local = this.cartService.getLocalCart();
-
-        if (!local?.items?.length) return;
-
-        const addRequests = local.items
-          .filter(item => item && item.productId)
-          .map(item => this.cartService.addLocalItemToServer(serverCart.cartId, item));
-
-        if (addRequests.length === 0) {
-          this.cartService.clearLocalCart();
-          return;
-        }
-        forkJoin(addRequests).subscribe({
-          next: (updatedCarts) => {
-            this.cart = updatedCarts[updatedCarts.length - 1];
-            this.cartService.clearLocalCart();
-          },
-          error: (mergeErr) => {
-            console.error('Error during cart merge', mergeErr);
-          }
-        });
+    this.cartService.syncCart().subscribe({
+      next: cart => {
+        this.cart = cart;
+        console.log('Cart loaded or created:', cart);
+        this.cartService.updateCartItemCount(cart);
       },
-      error: (err) => {
-        console.error('Failed to load server cart', err);
+      error: err => {
+        console.error('Failed to load cart', err);
       }
     });
-    this.cartService.getCartItemCount();
   }
 
   addItem(productId: number): void {
@@ -85,7 +60,10 @@ export class CartComponent implements OnInit {
     let cartId = this.cart?.cartId;
     if (this.userService.isLoggedIn() && cartId != null) {
       this.cartService.delete(cartId).subscribe({
-        next: (updatedCart) => { this.cart = this.cartService.createEmptyCart(); },
+        next: (updatedCart) => {
+          this.cart = this.cartService.createEmptyCart();
+          this.cartService.resetCartItemCount()
+        },
         error: (err) => console.error('Error adding item to server cart', err)
       });
     } else {
@@ -100,20 +78,13 @@ export class CartComponent implements OnInit {
   removeItem(itemId: number, productId: number): void {
     if (!this.cart) return;
 
-    let itemToRemove = this.cart.items.find(x => x.cartItemId == itemId);
-    if (itemToRemove == undefined) {
-      return;
-    }
+    const item = this.findCartItem(itemId);
+    if (!item) return;
+
     if (this.userService.isLoggedIn()) {
-      this.cartService.removeItem(this.cart.cartId, itemToRemove).subscribe({
-        next: (updatedCart) => this.cart = updatedCart,
-        error: (err: any) => console.error('Error removing item from server cart', err)
-      });
+      this.removeItemFromServer(item);
     } else {
-      this.cart.items = this.cart.items.filter(item => item.productId !== productId);
-      this.cartService.saveLocalCart(this.cart);
-      this.cart.subtotal = this.cartService.getLocalCartTotal(this.cart);
-      this.cartService.updateCartItemCount(this.cart);
+      this.removeItemFromLocal(productId);
     }
   }
 
@@ -137,5 +108,27 @@ export class CartComponent implements OnInit {
   clearLocalCart(): void {
     localStorage.removeItem(this.cartService.localStorageKey);
     this.cart = this.cartService.createEmptyCart();
+  }
+
+  private findCartItem(itemId: number): CartItem | undefined {
+    return this.cart?.items.find(item => item.cartItemId === itemId);
+  }
+
+  private removeItemFromServer(item: CartItem): void {
+    if (!this.cart) return;
+
+    this.cartService.removeItem(this.cart.cartId, item).subscribe({
+      next: updatedCart => this.cart = updatedCart,
+      error: err => console.error('Error removing item from server cart', err)
+    });
+  }
+
+  private removeItemFromLocal(productId: number): void {
+    if (!this.cart) return;
+
+    this.cart.items = this.cart.items.filter(item => item.productId !== productId);
+    this.cartService.saveLocalCart(this.cart);
+    this.cart.subtotal = this.cartService.getLocalCartTotal(this.cart);
+    this.cartService.updateCartItemCount(this.cart);
   }
 }

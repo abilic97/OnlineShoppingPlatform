@@ -3,7 +3,6 @@ import { ProductService } from '../services/product.service';
 import { CartService } from '../services/cart.service';
 import { Product } from '../models/product';
 import { UserService } from '../services/users.service';
-import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-product-list',
@@ -17,9 +16,7 @@ export class ProductListComponent implements OnInit {
         private productService: ProductService,
         private cartService: CartService,
         private userService: UserService,
-        private router: Router
     ) {
-        this.cartService.getCartItemCount();
     }
 
     ngOnInit(): void {
