@@ -4,8 +4,10 @@
 
 One of the key requirements of this project was to create a document explaining the **application architecture**, **security**, **component interactions**, and other essential implementation decisions.
 
-You can view the full document here with full explanation of all :  
-🔗 [Architecture & Design Document (Google Drive)](https://drive.google.com/file/d/1Dpx7RDgYAEMMBgLeMZJFLRMloQTBcNTm/view?usp=sharing)
+### 🔥 **DOCUMENT IN THE LINK BELOW:**  
+  
+**🔗 [Architecture & Design Document (Google Drive)](https://drive.google.com/file/d/1Dpx7RDgYAEMMBgLeMZJFLRMloQTBcNTm/view?usp=sharing)**
+
 
 ## ✅ Functionality Overview
 
@@ -22,8 +24,9 @@ Alongside the design document, the task was to deliver a minimal implementation 
   - ID **encryption/decryption** between frontend and backend to prevent predictable and visible identifiers
 - 💓 **Health check endpoint** to verify database connectivity (PoC-level)
 - 📁 **Serilog-based file logging** for request tracking and debugging
+- ⚡ **Caching implemented** to optimize performance and reduce database calls
 
-> **Note:** As a bonus, a very simple frontend in Angular was implemented. It serves as a basic UI needs and would need more work to be fully functional. There are some minor bugs that need to be fixed (like when logging in, user first needs to navigate to cart to initialize it. Also refresh on new changes  added needs to be implemented. This was just a simple example done in a few hours to better visualise the app better)
+> **Note:** As a bonus, a very simple frontend in Angular was implemented. It serves as a basic UI needs and would need more work to be fully functional. There are some minor bugs that need to be fixed (like when logging in, user first needs to navigate to cart to initialize it. Also refresh on new changes  added needs to be implemented. This was just a simple example done in a few hours to better visualise the app)
 
 ## ⚙️ Prerequisites for building the project
  
