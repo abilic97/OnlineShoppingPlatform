@@ -193,7 +193,6 @@ namespace OnlineShoppingPlatform.Carts.Services
                     Product = product,
                     CartId = cart.CartId,
                     CreatedOn = DateTime.UtcNow,
-                    CreatedBy = "System"
                 });
             }
         }
