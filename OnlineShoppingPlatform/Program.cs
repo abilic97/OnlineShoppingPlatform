@@ -42,6 +42,12 @@ builder.Services.AddControllers(options =>
         builder.Services.BuildServiceProvider().GetRequiredService<IEncryptionHelper>()));
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "ShoppingApp_";
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSpaStaticFiles(configuration =>
 {
